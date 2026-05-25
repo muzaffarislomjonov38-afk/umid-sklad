@@ -1,0 +1,3753 @@
+﻿<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1C Sklad Doctor</title>
+  <style>
+    :root {
+      --bg: #eef3fb;
+      --panel: #ffffff;
+      --text: #1d2d44;
+      --muted: #687a95;
+      --line: #dbe5f4;
+      --accent: #1398e7;
+      --accent-soft: #e7f6ff;
+      --good: #1ea968;
+      --warn: #f4ab2a;
+      --bad: #df5454;
+      --side: #1f2b45;
+      --side-soft: #2c3e63;
+      --shadow: 0 10px 30px rgba(10, 30, 58, 0.12);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Manrope", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 0 0, #dbe7ff 0, transparent 35%),
+        radial-gradient(circle at 100% 0, #d6f1ff 0, transparent 33%),
+        var(--bg);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .login-screen {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+    }
+
+    .login-card {
+      width: min(430px, 95vw);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 26px;
+    }
+
+    .login-card h1 {
+      margin: 0 0 8px;
+      color: #173459;
+      font-size: 1.8rem;
+    }
+
+    .login-card p {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 0.94rem;
+      line-height: 1.45;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+      margin-bottom: 11px;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 0.89rem;
+    }
+
+    .field input,
+    .field select {
+      border: 1px solid #d4deef;
+      border-radius: 10px;
+      padding: 10px 11px;
+      background: #fbfdff;
+      font: inherit;
+      color: var(--text);
+    }
+
+    .field input:focus,
+    .field select:focus {
+      outline: 2px solid #bde6ff;
+      border-color: #95d8ff;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 13px;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 700;
+      transition: 0.18s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(105deg, #0f8fdd, #24beff);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.05);
+    }
+
+    .btn-soft {
+      background: #f3f8ff;
+      color: #1f385a;
+      border: 1px solid #d3e3f7;
+    }
+
+    .btn-soft:hover {
+      background: #e9f3ff;
+    }
+
+    .btn-outline {
+      background: #fff;
+      border: 1px solid #d6e3f6;
+      color: #1f3658;
+    }
+
+    .btn-outline:hover {
+      background: #f6fbff;
+    }
+
+    .btn-danger {
+      background: #fff2f2;
+      border: 1px solid #f0b5b5;
+      color: #a03131;
+    }
+
+    .btn-danger:hover {
+      background: #ffe8e8;
+    }
+
+    .error-text {
+      color: var(--bad);
+      min-height: 18px;
+      margin: 9px 0 0;
+      font-size: 0.9rem;
+    }
+
+    .hint {
+      margin-top: 12px;
+      border-radius: 11px;
+      border: 1px dashed #b8def9;
+      background: #f3faff;
+      padding: 10px 11px;
+      font-size: 0.87rem;
+      color: #34587b;
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 272px;
+      background: linear-gradient(180deg, #1f2b45, #1f3660 70%, #1e467b);
+      color: #d4e5ff;
+      padding: 15px 12px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+    }
+
+    .brand {
+      padding: 11px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.07);
+      margin-bottom: 14px;
+    }
+
+    .brand strong {
+      display: block;
+      color: #fff;
+      font-size: 1.06rem;
+      margin-bottom: 3px;
+    }
+
+    .brand small {
+      color: #b8cbef;
+      font-size: 0.8rem;
+    }
+
+    .menu {
+      display: grid;
+      gap: 6px;
+    }
+
+    .menu-item {
+      width: 100%;
+      text-align: left;
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 11px;
+      background: transparent;
+      color: #d9e8ff;
+      font: inherit;
+      cursor: pointer;
+      transition: 0.16s ease;
+    }
+
+    .menu-item:hover {
+      background: var(--side-soft);
+    }
+
+    .menu-item.active {
+      background: linear-gradient(105deg, #1495e3, #2bc3ff);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.84);
+      backdrop-filter: blur(8px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 11px;
+      padding: 14px 18px;
+    }
+
+    .topbar h1 {
+      margin: 0 0 3px;
+      color: #17375f;
+      font-size: 1.17rem;
+    }
+
+    .topbar small {
+      color: var(--muted);
+    }
+
+    .profile-chip-wrap {
+      position: relative;
+    }
+
+    .profile-chip {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      background: #f4f9ff;
+      border: 1px solid #d7e7f8;
+      border-radius: 11px;
+      padding: 6px 9px;
+      cursor: pointer;
+    }
+
+    .profile-chip-btn {
+      font: inherit;
+      color: inherit;
+      text-align: left;
+    }
+
+    .profile-dropdown {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 8px);
+      width: 280px;
+      background: #fff;
+      border: 1px solid #dbe5f4;
+      border-radius: 12px;
+      box-shadow: 0 14px 32px rgba(10, 30, 58, 0.15);
+      padding: 12px;
+      z-index: 30;
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      color: #fff;
+      background: linear-gradient(105deg, #108fdf, #33c5ff);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      flex-shrink: 0;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .avatar svg {
+      width: 70%;
+      height: 70%;
+      fill: #fff;
+      opacity: 0.95;
+    }
+
+    .avatar-lg {
+      width: 88px;
+      height: 88px;
+    }
+
+    .profile-chip strong {
+      display: block;
+      font-size: 0.9rem;
+      color: #193c63;
+    }
+
+    .profile-chip span {
+      color: var(--muted);
+      font-size: 0.77rem;
+    }
+
+    .content {
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+      animation: fadeIn 0.18s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 1.32rem;
+      color: #16355b;
+    }
+
+    .actions {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    #globalFilterCard {
+      position: relative;
+      overflow: visible;
+    }
+
+    .filter-actions {
+      align-items: center;
+    }
+
+    .filter-wrap {
+      position: relative;
+    }
+
+    .filter-popover {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      z-index: 20;
+      width: 260px;
+      border: 1px solid #d5e2f3;
+      border-radius: 12px;
+      background: #f6f8fb;
+      box-shadow: 0 14px 32px rgba(22, 45, 79, 0.18);
+      padding: 8px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 13px;
+    }
+
+    .card h3 {
+      margin: 0 0 10px;
+      color: #1b3d67;
+      font-size: 1.02rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .grid-2 {
+      grid-template-columns: 1fr;
+    }
+
+    .kpi-grid {
+      grid-template-columns: repeat(4, minmax(180px, 1fr));
+      margin-bottom: 12px;
+    }
+
+    .kpi strong {
+      display: block;
+      margin-bottom: 3px;
+      color: #15375d;
+      font-size: 1.14rem;
+    }
+
+    .kpi span {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .range-controls {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .range-controls input {
+      border-radius: 9px;
+      border: 1px solid #d4e1f2;
+      padding: 8px 9px;
+      font: inherit;
+      color: var(--text);
+      background: #fff;
+    }
+
+    .preset {
+      border: 1px solid #d3e1f3;
+      border-radius: 9px;
+      background: #f3f8ff;
+      padding: 8px 10px;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .preset.active {
+      background: #def2ff;
+      border-color: #9fdaff;
+      color: #0f699f;
+      font-weight: 700;
+    }
+
+    .chip-row {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      border: 1px solid #d5e1f2;
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: #f6faff;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: #21456d;
+    }
+
+    .chip.active {
+      background: #e0f3ff;
+      border-color: #9fd7fb;
+      color: #0e6a9f;
+      font-weight: 700;
+    }
+
+    .filter-preset-btn {
+      width: 100%;
+      text-align: left;
+      border: 1px solid #d6dce8;
+      background: #e9edf4;
+      color: #4b5a70;
+      font: inherit;
+      font-size: 0.9rem;
+      padding: 8px 10px;
+      cursor: pointer;
+      margin-bottom: 6px;
+    }
+
+    .filter-preset-btn.active {
+      background: #0f8da7;
+      color: #fff;
+      border-color: #0f8da7;
+      font-weight: 700;
+    }
+
+    .entry-input,
+    .product-edit-input {
+      width: 100%;
+      border: 1px solid #d3e2f4;
+      border-radius: 8px;
+      padding: 6px 8px;
+      font: inherit;
+      min-width: 90px;
+      background: #fff;
+    }
+
+    .entry-input:focus,
+    .product-edit-input:focus {
+      outline: 2px solid #c6eaff;
+      border-color: #9fd6fb;
+    }
+
+    .pager {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .pager-info {
+      color: var(--muted);
+      font-size: 0.83rem;
+    }
+
+    .pager-btn {
+      border: 1px solid #d0dff2;
+      background: #f5f9ff;
+      color: #1f4169;
+      border-radius: 8px;
+      padding: 5px 9px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .pager-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .forms-grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(2, minmax(170px, 1fr));
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    .notice {
+      margin-top: 9px;
+      min-height: 18px;
+      font-size: 0.88rem;
+    }
+
+    .notice.ok {
+      color: var(--good);
+    }
+
+    .notice.bad {
+      color: var(--bad);
+    }
+
+    .inline-text {
+      margin: 0 0 9px;
+      color: #4b6585;
+      font-size: 0.88rem;
+    }
+
+    .table-wrap {
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 680px;
+    }
+
+    th,
+    td {
+      padding: 9px 10px;
+      border-bottom: 1px solid #e7eef9;
+      text-align: left;
+      font-size: 0.9rem;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f8fbff;
+      color: #34557b;
+      font-weight: 700;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    tfoot th {
+      border-top: 2px solid #d5e2f3;
+      background: #eef7ff;
+      color: #16355b;
+      font-weight: 800;
+      position: static;
+    }
+
+    .empty {
+      text-align: center;
+      color: #6b7e98;
+      font-style: italic;
+      padding: 15px;
+    }
+
+    .tag {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .tag.in {
+      background: #e8fbf0;
+      color: #187548;
+      border: 1px solid #b7e9cc;
+    }
+
+    .tag.out {
+      background: #fff3e5;
+      color: #9c5c0b;
+      border: 1px solid #f3d4ac;
+    }
+
+    .tag.edit {
+      background: #ebf4ff;
+      color: #1a588f;
+      border: 1px solid #c9def8;
+    }
+
+    .link-btn {
+      border: 0;
+      background: transparent;
+      color: #0f75b4;
+      text-decoration: underline;
+      cursor: pointer;
+      padding: 0;
+      font: inherit;
+    }
+
+    .driver-name-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 220px;
+    }
+
+    .driver-name-cell .link-btn {
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .admin-panel {
+      display: grid;
+      gap: 12px;
+    }
+
+    .admin-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .upload-hint {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.83rem;
+    }
+
+    .driver-profile {
+      border: 1px solid #dce8f8;
+      border-radius: 12px;
+      background: #fbfdff;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .profile-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px dashed #e5edf9;
+      padding-bottom: 7px;
+    }
+
+    .profile-row:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .profile-row small {
+      color: var(--muted);
+    }
+
+    .profile-row strong {
+      color: #15385f;
+      text-align: right;
+    }
+
+    @media (max-width: 1200px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, minmax(180px, 1fr));
+      }
+    }
+
+    @media (max-width: 980px) {
+      .app {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+
+      .menu {
+        grid-template-columns: repeat(3, minmax(120px, 1fr));
+      }
+
+      .topbar {
+        position: static;
+      }
+
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .menu {
+        grid-template-columns: repeat(2, minmax(120px, 1fr));
+      }
+
+        .kpi-grid,
+        .forms-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .filter-actions,
+        .filter-wrap {
+          width: 100%;
+        }
+
+        .filter-popover {
+          left: 0;
+          right: auto;
+          width: min(260px, calc(100vw - 48px));
+        }
+
+        .profile-dropdown {
+          width: min(280px, calc(100vw - 40px));
+        }
+      }
+  </style>
+</head>
+<body>
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card">
+      <h1>1C Sklad Doctor</h1>
+      <p>Sklad kirim-chiqim, haydovchilar tovari, vozvrat va kunlik hisobotlar paneli.</p>
+      <form id="loginForm">
+        <div class="field">
+          <label for="loginUsername">Login</label>
+          <input id="loginUsername" autocomplete="username" placeholder="Login kiriting">
+        </div>
+        <div class="field">
+          <label for="loginPassword">Parol</label>
+          <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Parol kiriting">
+        </div>
+        <button class="btn btn-primary" type="submit">Kirish</button>
+        <p id="loginError" class="error-text"></p>
+      </form>
+      <div class="hint">Login: <strong>Umid</strong> | Parol: <strong>5555</strong></div>
+    </div>
+  </div>
+
+  <div id="app" class="app hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <strong>Sklad Doctor Panel</strong>
+        <small>1C va Sales Doctor uslubida</small>
+      </div>
+      <nav class="menu" id="menuList">
+        <button class="menu-item active" data-target="dashboardSection">Dashboard</button>
+        <button class="menu-item" data-target="driverOutSection">Haydovchilar Tovari</button>
+        <button class="menu-item" data-target="otherOutSection">Boshqa Chiqimlar</button>
+        <button class="menu-item" data-target="takenGoodsSection">Olingan Tovarlar</button>
+        <button class="menu-item" data-target="returnsSection">Vozvratlar</button>
+        <button class="menu-item" data-target="incomingSection">Skladga Kirim</button>
+        <button class="menu-item" data-target="incomingHistorySection">Kirimlar Tarixi</button>
+        <button class="menu-item" data-target="dailyFlowSection">Jami Kunlik Chiqim</button>
+        <button class="menu-item" data-target="returnsHistorySection">Vozvratlar Tarixi</button>
+        <button class="menu-item" data-target="driversSection">Haydovchilar</button>
+        <button class="menu-item" data-target="productsSection">Mahsulotlar</button>
+        <button class="menu-item" data-target="stockSection">Sklad</button>
+        <button class="menu-item" data-target="reportsSection">Hisobotlar</button>
+        <button class="menu-item" data-target="initialStockSection">Boshlang'ich Ostatka</button>
+        <button class="menu-item" data-target="profileSection">Profil</button>
+      </nav>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <div>
+          <h1>Sklad Hisob-kitob Tizimi</h1>
+          <small id="todayLabel"></small>
+        </div>
+        <div class="actions">
+          <div class="profile-chip-wrap">
+            <button id="profileChip" class="profile-chip profile-chip-btn" type="button">
+              <div id="topbarAvatar" class="avatar"></div>
+              <div>
+                <strong id="topbarName">Umid</strong>
+                <span id="topbarRole">Admin</span>
+              </div>
+            </button>
+            <div id="profileDropdown" class="profile-dropdown hidden">
+              <div class="admin-head">
+                <div id="dropdownAvatar" class="avatar avatar-lg"></div>
+                <div>
+                  <strong id="dropdownName">Umid</strong>
+                  <div id="dropdownRole" class="inline-text" style="margin:4px 0 0;">Admin</div>
+                </div>
+              </div>
+              <div class="driver-profile" style="margin-top:10px;">
+                <div class="profile-row"><small>Email</small><strong id="dropdownEmail">admin@example.com</strong></div>
+                <div class="profile-row"><small>Login</small><strong id="dropdownLogin">Umid</strong></div>
+                <div class="profile-row"><small>Status</small><strong id="dropdownStatus">Faol</strong></div>
+              </div>
+            </div>
+          </div>
+          <button id="logoutBtn" class="btn btn-soft" type="button">Chiqish</button>
+        </div>
+      </header>
+
+      <main class="content">
+        <article class="card" id="globalFilterCard">
+          <div class="section-head">
+            <h2>Umumiy Filtr</h2>
+            <div class="actions filter-actions">
+              <div class="filter-wrap">
+                <button id="toggleFilterPanel" class="btn btn-outline" type="button">Oraliq tanlash</button>
+                <div id="globalFilterPanel" class="filter-popover hidden">
+                  <button class="filter-preset-btn active" data-filter-preset="today" type="button">Bugun</button>
+                  <button class="filter-preset-btn" data-filter-preset="yesterday" type="button">Kecha</button>
+                  <button class="filter-preset-btn" data-filter-preset="last7" type="button">Oxirgi 7 kun</button>
+                  <button class="filter-preset-btn" data-filter-preset="last30" type="button">Oxirgi 30 kun</button>
+                  <button class="filter-preset-btn" data-filter-preset="prevMonth" type="button">Oldingi oy</button>
+                  <button class="filter-preset-btn" data-filter-preset="custom" type="button">Sana tanlash</button>
+                  <div class="range-controls" style="margin-top:8px;">
+                    <div class="field" style="margin:0;">
+                      <label for="globalFrom">dan</label>
+                      <input id="globalFrom" type="date">
+                    </div>
+                    <div class="field" style="margin:0;">
+                      <label for="globalTo">gacha</label>
+                      <input id="globalTo" type="date">
+                    </div>
+                  </div>
+                  <div class="actions" style="margin-top:8px;">
+                    <button id="cancelGlobalFilter" class="btn btn-soft" type="button">Bekor qilish</button>
+                  </div>
+                </div>
+              </div>
+              <button id="applyGlobalFilter" class="btn btn-primary" type="button">Filtr</button>
+              <button id="clearGlobalFilter" class="btn btn-outline" type="button">Filtrdan chiqarish</button>
+            </div>
+          </div>
+          <p id="globalFilterText" class="inline-text" style="margin:0;">Filtr: o'chirilgan</p>
+        </article>
+
+        <section id="dashboardSection" class="section active">
+          <div class="section-head">
+            <h2>Dashboard</h2>
+            <div class="actions">
+              <button class="btn btn-outline export-btn" data-table="dashboardProductsTable" data-file="dashboard-mahsulotlar">Mahsulotlar eksport</button>
+              <button class="btn btn-outline export-btn" data-table="dashboardDriversTable" data-file="dashboard-haydovchilar">Haydovchilar eksport</button>
+            </div>
+          </div>
+
+          <div class="grid kpi-grid">
+            <article class="card kpi">
+              <h3>Eng ko'p kirim mahsulot</h3>
+              <strong id="kpiTopInName">-</strong>
+              <span id="kpiTopInQty">0 qop 0 dona</span>
+            </article>
+            <article class="card kpi">
+              <h3>Eng ko'p chiqim mahsulot</h3>
+              <strong id="kpiTopOutName">-</strong>
+              <span id="kpiTopOutQty">0 qop 0 dona</span>
+            </article>
+            <article class="card kpi">
+              <h3>Bugungi chiqim summasi</h3>
+              <strong id="kpiTodayOutAmount">0 so'm</strong>
+              <span>Haydovchilar olgan tovar</span>
+            </article>
+            <article class="card kpi">
+              <h3>Sklad jami qoldiq summasi</h3>
+              <strong id="kpiStockAmount">0 so'm</strong>
+              <span>Joriy ostatka</span>
+            </article>
+          </div>
+
+          <div class="grid grid-2">
+            <article class="card">
+              <h3>Mahsulotlar Holati</h3>
+              <p class="inline-text" id="dashRangeText">Oraliq: Oxirgi 7 kun</p>
+              <div class="table-wrap">
+                <table id="dashboardProductsTable">
+                  <thead>
+                    <tr>
+                      <th>Mahsulot</th>
+                      <th>Kirim</th>
+                      <th>Chiqim</th>
+                      <th>Vozvrat</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboardProductsBody"></tbody>
+                </table>
+              </div>
+            </article>
+            <article class="card">
+              <h3>Haydovchilar Summasi</h3>
+              <div class="table-wrap">
+                <table id="dashboardDriversTable">
+                  <thead>
+                    <tr>
+                      <th>Haydovchi</th>
+                      <th>Bugungi olgan</th>
+                      <th>Jami olgan</th>
+                      <th>Oxirgi olgan sana</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboardDriversBody"></tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section id="incomingSection" class="section">
+          <div class="section-head">
+            <h2>Skladga Kirim</h2>
+          </div>
+
+          <article class="card">
+            <h3>Kirim qo'shish</h3>
+            <p class="inline-text">Kirim kiritishda faqat mahsulot qatori va narx maydonlari ko'rinadi.</p>
+            <form id="incomingForm">
+              <div class="forms-grid">
+                <div class="field">
+                  <label for="incomingDate">Sana</label>
+                  <input id="incomingDate" type="date">
+                </div>
+                <div class="field">
+                  <label>Izoh</label>
+                  <input id="incomingComment" placeholder="Ixtiyoriy">
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table id="incomingEntryTable">
+                  <thead>
+                    <tr>
+                      <th>Mahsulot</th>
+                      <th>Qop narxi</th>
+                      <th>Dona narxi</th>
+                      <th>Qop soni</th>
+                      <th>Dona soni</th>
+                      <th>Summa</th>
+                    </tr>
+                  </thead>
+                  <tbody id="incomingEntryBody"></tbody>
+                </table>
+              </div>
+              <p id="incomingEntryTotal" class="inline-text">Jami summa: 0 so'm</p>
+              <div class="actions">
+                <button class="btn btn-primary" type="submit">Kirimni saqlash</button>
+                <button class="btn btn-soft clear-entry-btn" data-entry-type="incoming" type="button">Qatorlarni tozalash</button>
+              </div>
+              <p id="incomingNotice" class="notice"></p>
+            </form>
+          </article>
+        </section>
+
+        <section id="incomingHistorySection" class="section">
+          <div class="section-head">
+            <h2>Kirimlar Tarixi</h2>
+            <div class="actions">
+              <button class="btn btn-outline export-btn" data-table="incomingTable" data-file="skladga-kirim">Excelga eksport</button>
+            </div>
+          </div>
+          <article class="card">
+            <h3>Skladga kirgan tovarlar ro'yxati</h3>
+            <div class="table-wrap">
+              <table id="incomingTable">
+                <thead>
+                  <tr>
+                    <th>Sana</th>
+                    <th>Mahsulot</th>
+                    <th>Miqdor</th>
+                    <th>Summa</th>
+                    <th>O'chirish</th>
+                  </tr>
+                </thead>
+                <tbody id="incomingBody"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section id="stockSection" class="section">
+          <div class="section-head">
+            <h2>Sklad</h2>
+            <div class="actions">
+              <button class="btn btn-outline export-btn" data-table="stockTable" data-file="sklad-ostatka">Excelga eksport</button>
+              <button class="btn btn-outline export-btn" data-table="stockEditTable" data-file="sklad-tahrir-jurnali">Tahrir jurnalini eksport</button>
+            </div>
+          </div>
+
+          <div class="grid grid-2">
+            <article class="card">
+              <h3>Sklad Ostatkasini Tahrirlash</h3>
+              <p class="inline-text">Mahsulotlar ro'yxat ko'rinishida chiqadi. Narx, qop soni, dona soni va summani shu yerda yozing.</p>
+              <form id="stockEditForm">
+                <div class="forms-grid">
+                  <div class="field">
+                    <label for="stockEditDate">Sana</label>
+                    <input id="stockEditDate" type="date">
+                  </div>
+                  <div class="field">
+                    <label for="stockEditOperation">Amal</label>
+                    <select id="stockEditOperation">
+                      <option value="add">Qoldiq qo'shish</option>
+                      <option value="subtract">Qoldiq kamaytirish</option>
+                      <option value="reset">Qoldiqni 0 qilish</option>
+                    </select>
+                  </div>
+                  <div class="field full">
+                    <label for="stockEditNote">Izoh</label>
+                    <input id="stockEditNote" placeholder="Masalan: yaroqsiz mahsulot">
+                  </div>
+                </div>
+                <div class="table-wrap">
+                  <table id="stockEditEntryTable">
+                    <thead>
+                      <tr>
+                        <th>Mahsulot</th>
+                        <th>Qop narxi</th>
+                        <th>Dona narxi</th>
+                        <th>Qop soni</th>
+                        <th>Dona soni</th>
+                        <th>Summa</th>
+                      </tr>
+                    </thead>
+                    <tbody id="stockEditEntryBody"></tbody>
+                  </table>
+                </div>
+                <p id="stockEditEntryTotal" class="inline-text">Jami summa: 0 so'm</p>
+                <div class="actions">
+                  <button class="btn btn-primary" type="submit">Tahrirni saqlash</button>
+                  <button class="btn btn-soft clear-entry-btn" data-entry-type="stockEdit" type="button">Qatorlarni tozalash</button>
+                </div>
+                <p id="stockEditNotice" class="notice"></p>
+              </form>
+            </article>
+            <article class="card">
+              <h3>Joriy Sklad Ostatkasi</h3>
+              <div class="table-wrap">
+                <table id="stockTable">
+                  <thead>
+                    <tr>
+                      <th>Mahsulot</th>
+                      <th>Qop narxi</th>
+                      <th>Dona narxi</th>
+                      <th>Qoldiq</th>
+                      <th>Qoldiq summasi</th>
+                      <th>Tahrir</th>
+                    </tr>
+                  </thead>
+                  <tbody id="stockBody"></tbody>
+                  <tfoot id="stockFoot"></tfoot>
+                </table>
+              </div>
+            </article>
+          </div>
+
+          <article class="card" style="margin-top:12px;">
+            <h3>Sklad Tahrir Jurnali</h3>
+            <div class="table-wrap">
+              <table id="stockEditTable">
+                <thead>
+                  <tr>
+                    <th>Sana</th>
+                    <th>Amal</th>
+                    <th>Mahsulot</th>
+                    <th>Miqdor</th>
+                    <th>Summa</th>
+                    <th>Izoh</th>
+                    <th>O'chirish</th>
+                  </tr>
+                </thead>
+                <tbody id="stockEditBody"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section id="productsSection" class="section">
+          <div class="section-head">
+            <h2>Mahsulotlar</h2>
+            <div class="actions">
+              <button class="btn btn-outline export-btn" data-table="productsTable" data-file="mahsulotlar">Excelga eksport</button>
+            </div>
+          </div>
+
+          <div class="grid grid-2">
+            <article class="card">
+              <h3>Mahsulot Qo'shish</h3>
+              <p class="inline-text">Suratdan kiritilgan katalog yuklangan. Yangi mahsulot ham qo'shish mumkin.</p>
+              <form id="productForm">
+                <div class="forms-grid">
+                  <div class="field full">
+                    <label for="productName">Mahsulot nomi</label>
+                    <input id="productName" placeholder="Masalan: Un 50kg">
+                  </div>
+                  <div class="field">
+                    <label for="piecesPerBag">1 qop ichidagi dona</label>
+                    <input id="piecesPerBag" type="number" min="1" step="1" placeholder="Masalan: 50">
+                  </div>
+                  <div class="field">
+                    <label for="priceBag">Qop narxi (so'm)</label>
+                    <input id="priceBag" type="number" min="0" step="1000" placeholder="Masalan: 330000">
+                  </div>
+                  <div class="field full">
+                    <label for="pricePiece">Dona narxi (so'm)</label>
+                    <input id="pricePiece" type="number" min="0" step="1" placeholder="Masalan: 7000">
+                  </div>
+                </div>
+                <button class="btn btn-primary" type="submit">Mahsulot qo'shish</button>
+                <p id="productNotice" class="notice"></p>
+              </form>
+            </article>
+
+            <article class="card">
+              <h3>Mahsulotni O'chirish</h3>
+              <p class="inline-text">Tanlangan mahsulot ro'yxatdan o'chiriladi (harakatlari ham o'chadi).</p>
+              <form id="deleteProductForm">
+                <div class="field">
+                  <label for="deleteProductSelect">Mahsulot tanlang</label>
+                  <select id="deleteProductSelect"></select>
+                </div>
+                <button class="btn btn-danger" type="submit">Mahsulotni o'chirish</button>
+                <p id="deleteProductNotice" class="notice"></p>
+              </form>
+            </article>
+          </div>
+
+          <article class="card" style="margin-top:12px;">
+            <h3>Mahsulotlar ro'yxati</h3>
+            <div class="table-wrap">
+              <table id="productsTable">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Nomi</th>
+                    <th>1 qop = dona</th>
+                    <th>Qop narxi</th>
+                    <th>Dona narxi</th>
+                    <th>Qoldiq</th>
+                    <th>Qoldiq summasi</th>
+                    <th>Tahrir</th>
+                  </tr>
+                </thead>
+                <tbody id="productsBody"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section id="driversSection" class="section">
+          <div class="section-head">
+            <h2>Haydovchilar</h2>
+            <div class="actions">
+              <button class="btn btn-outline export-btn" data-table="driversTable" data-file="haydovchilar">Excelga eksport</button>
+            </div>
+          </div>
+
+          <div class="grid grid-2">
+            <article class="card">
+              <h3>Haydovchi Qo'shish</h3>
+              <form id="driverForm">
+                <div class="forms-grid">
+                  <div class="field full">
+                    <label for="driverName">F.I.O</label>
+                    <input id="driverName" placeholder="Masalan: Jasur T.">
+                  </div>
+                  <div class="field">
+                    <label for="driverPhone">Telefon</label>
+                    <input id="driverPhone" placeholder="+998 ..">
+                  </div>
+                  <div class="field">
+                    <label for="driverVehicle">Transport</label>
+                    <input id="driverVehicle" placeholder="ISUZU, Damas...">
+                  </div>
+                  <div class="field">
+                    <label for="driverPhoto">Rasm (ixtiyoriy)</label>
+                    <input id="driverPhoto" type="file" accept="image/*">
+                  </div>
+                </div>
+                <button class="btn btn-primary" type="submit">Haydovchi qo'shish</button>
+                <p id="driverNotice" class="notice"></p>
+              </form>
+            </article>
+
+            <article class="card">
+              <h3>Haydovchi Profili</h3>
+              <div id="driverProfile" class="driver-profile"></div>
+            </article>
+          </div>
+
+          <article class="card" style="margin-top:12px;">
+            <h3>Haydovchilar ro'yxati</h3>
+            <div class="table-wrap">
+              <table id="driversTable">
+                <thead>
+                  <tr>
+                    <th>Haydovchi</th>
+                    <th>Telefon</th>
+                    <th>Transport</th>
+                    <th>Bugungi olgan summa</th>
+                    <th>Jami olgan summa</th>
+                    <th>O'chirish</th>
+                  </tr>
+                </thead>
+                <tbody id="driversBody"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section id="driverOutSection" class="section">
+          <div class="section-head">
+            <h2>Haydovchilar Tovari</h2>
+          </div>
+
+          <article class="card">
+            <h3>Haydovchiga Tovar Berish</h3>
+            <p class="inline-text">Chiqim kiritishda faqat kerakli maydonlar ko'rinadi, narxlar qo'lda yoziladi.</p>
+            <form id="driverOutForm">
+              <div class="forms-grid">
+                <div class="field">
+                  <label for="driverOutDate">Sana</label>
+                  <input id="driverOutDate" type="date">
+                </div>
+                <div class="field">
+                  <label for="driverOutDriver">Haydovchi</label>
+                  <select id="driverOutDriver"></select>
+                </div>
+                <div class="field">
+                  <label>Izoh</label>
+                  <input id="driverOutComment" placeholder="Ixtiyoriy">
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table id="driverOutEntryTable">
+                  <thead>
+                    <tr>
+                      <th>Mahsulot</th>
+                      <th>Qop narxi</th>
+                      <th>Dona narxi</th>
+                      <th>Qop soni</th>
+                      <th>Dona soni</th>
+                      <th>Summa</th>
+                    </tr>
+                  </thead>
+                  <tbody id="driverOutEntryBody"></tbody>
+                </table>
+              </div>
+              <p id="driverOutEntryTotal" class="inline-text">Jami summa: 0 so'm</p>
+              <div class="actions">
+                <button class="btn btn-primary" type="submit">Chiqimni saqlash</button>
+                <button class="btn btn-soft clear-entry-btn" data-entry-type="driverOut" type="button">Qatorlarni tozalash</button>
+              </div>
+              <p id="driverOutNotice" class="notice"></p>
+            </form>
+          </article>
+        </section>
+
+        <section id="takenGoodsSection" class="section">
+          <div class="section-head">
+            <h2>Olingan Tovarlar</h2>
+            <div class="actions">
+              <button class="btn btn-outline export-btn" data-table="driverOutTable" data-file="haydovchilar-tovari">Excelga eksport</button>
+            </div>
+          </div>
+          <article class="card">
+            <h3>Haydovchi olgan tovarlar</h3>
+            <div class="table-wrap">
+              <table id="driverOutTable">
+                <thead>
+                  <tr>
+                    <th>Sana</th>
+                    <th>Haydovchi</th>
+                    <th>Mahsulot</th>
+                    <th>Miqdor</th>
+                    <th>Summa</th>
+                    <th>O'chirish</th>
+                  </tr>
+                </thead>
+                <tbody id="driverOutBody"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section id="returnsSection" class="section">
+          <div class="section-head">
+            <h2>Vozvratlar</h2>
+          </div>
+
+          <article class="card">
+            <h3>Haydovchidan Vozvrat Qabul Qilish</h3>
+            <p class="inline-text">Chiqimdagi kabi son va narx yoziladi, summa avtomatik hisoblanadi va tahrirlanadi.</p>
+            <form id="returnForm">
+              <div class="forms-grid">
+                <div class="field">
+                  <label for="returnDate">Sana</label>
+                  <input id="returnDate" type="date">
+                </div>
+                <div class="field">
+                  <label for="returnDriver">Haydovchi</label>
+                  <select id="returnDriver"></select>
+                </div>
+                <div class="field">
+                  <label>Izoh</label>
+                  <input id="returnComment" placeholder="Ixtiyoriy">
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table id="returnEntryTable">
+                  <thead>
+                    <tr>
+                      <th>Mahsulot</th>
+                      <th>Qop narxi</th>
+                      <th>Dona narxi</th>
+                      <th>Qop soni</th>
+                      <th>Dona soni</th>
+                      <th>Summa</th>
+                    </tr>
+                  </thead>
+                  <tbody id="returnEntryBody"></tbody>
+                </table>
+              </div>
+              <p id="returnEntryTotal" class="inline-text">Jami summa: 0 so'm</p>
+              <div class="actions">
+                <button class="btn btn-primary" type="submit">Vozvratni saqlash</button>
+                <button class="btn btn-soft clear-entry-btn" data-entry-type="return" type="button">Qatorlarni tozalash</button>
+              </div>
+              <p id="returnNotice" class="notice"></p>
+            </form>
+          </article>
+        </section>
+
+        <section id="returnsHistorySection" class="section">
+          <div class="section-head">
+            <h2>Vozvratlar Tarixi</h2>
+            <div class="actions">
+              <button class="btn btn-outline export-btn" data-table="returnsTable" data-file="vozvratlar">Excelga eksport</button>
+            </div>
+          </div>
+          <article class="card">
+            <h3>Vozvratlar ro'yxati</h3>
+            <div class="table-wrap">
+              <table id="returnsTable">
+                <thead>
+                  <tr>
+                    <th>Sana</th>
+                    <th>Haydovchi</th>
+                    <th>Mahsulot</th>
+                    <th>Miqdor</th>
+                    <th>Summa</th>
+                    <th>O'chirish</th>
+                  </tr>
+                </thead>
+                <tbody id="returnsBody"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section id="otherOutSection" class="section">
+          <div class="section-head">
+            <h2>Boshqa Chiqimlar</h2>
+            <div class="actions">
+              <button class="btn btn-outline export-btn" data-table="otherOutTable" data-file="boshqa-chiqimlar">Excelga eksport</button>
+            </div>
+          </div>
+
+          <article class="card">
+            <h3>Boshqa chiqim kiritish</h3>
+            <p class="inline-text">Obrazets, Brak yoki Abbos sababi bilan kiritilgan tovarlar sklad ostatkasidan ayiriladi.</p>
+            <form id="otherOutForm">
+              <div class="forms-grid">
+                <div class="field">
+                  <label for="otherOutDate">Sana</label>
+                  <input id="otherOutDate" type="date">
+                </div>
+                <div class="field">
+                  <label for="otherOutReason">Chiqim sababi</label>
+                  <select id="otherOutReason">
+                    <option value="Obrazets">Obrazets</option>
+                    <option value="Brak">Brak</option>
+                    <option value="Abbos">Abbos</option>
+                  </select>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table id="otherOutEntryTable">
+                  <thead>
+                    <tr>
+                      <th>Mahsulot</th>
+                      <th>Qop narxi</th>
+                      <th>Dona narxi</th>
+                      <th>Qop soni</th>
+                      <th>Dona soni</th>
+                      <th>Summa</th>
+                    </tr>
+                  </thead>
+                  <tbody id="otherOutEntryBody"></tbody>
+                </table>
+              </div>
+              <p id="otherOutEntryTotal" class="inline-text">Jami summa: 0 so'm</p>
+              <div class="actions">
+                <button class="btn btn-primary" type="submit">Boshqa chiqimni saqlash</button>
+                <button class="btn btn-soft clear-entry-btn" data-entry-type="otherOut" type="button">Qatorlarni tozalash</button>
+              </div>
+              <p id="otherOutNotice" class="notice"></p>
+            </form>
+          </article>
+
+          <article class="card" style="margin-top:12px;">
+            <h3>Boshqa chiqimlar ro'yxati</h3>
+            <div class="table-wrap">
+              <table id="otherOutTable">
+                <thead>
+                  <tr>
+                    <th>Sana</th>
+                    <th>Sabab</th>
+                    <th>Mahsulot</th>
+                    <th>Miqdor</th>
+                    <th>Summa</th>
+                    <th>O'chirish</th>
+                  </tr>
+                </thead>
+                <tbody id="otherOutBody"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section id="dailyFlowSection" class="section">
+          <div class="section-head">
+            <h2>Jami Kunlik Chiqim</h2>
+            <div class="actions">
+              <button class="btn btn-outline export-btn" data-table="dailyFlowTable" data-file="jami-kunlik-chiqim">Excelga eksport</button>
+            </div>
+          </div>
+          <article class="card" style="margin-bottom:12px;">
+            <div class="chip-row">
+              <button class="chip active" data-flow-type="all" type="button">Barchasi</button>
+              <button class="chip" data-flow-type="out" type="button">Faqat Chiqim</button>
+              <button class="chip" data-flow-type="in" type="button">Faqat Kirim</button>
+            </div>
+          </article>
+
+          <article class="card">
+            <p class="inline-text" id="flowRangeText">Oraliq: Bugun</p>
+            <div class="table-wrap">
+              <table id="dailyFlowTable">
+                <thead>
+                  <tr>
+                    <th>Sana</th>
+                    <th>Holat</th>
+                    <th>Haydovchi</th>
+                    <th>Mahsulot</th>
+                    <th>Miqdor</th>
+                    <th>Summa</th>
+                    <th>Manba</th>
+                    <th>O'chirish</th>
+                  </tr>
+                </thead>
+                <tbody id="dailyFlowBody"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section id="reportsSection" class="section">
+          <div class="section-head">
+            <h2>Hisobotlar</h2>
+            <div class="actions">
+              <button class="btn btn-outline export-btn" data-table="reportsTable" data-file="hisobot">Excelga eksport</button>
+            </div>
+          </div>
+
+          <article class="card">
+            <p class="inline-text" id="reportRangeText">Hisobot davri: Oxirgi 7 kun</p>
+            <div class="grid kpi-grid" style="margin-bottom:10px;">
+              <div class="card kpi">
+                <h3>Jami kirim</h3>
+                <strong id="reportIncomingQty">0 qop 0 dona</strong>
+                <span id="reportIncomingAmount">0 so'm</span>
+              </div>
+              <div class="card kpi">
+                <h3>Jami chiqim</h3>
+                <strong id="reportOutQty">0 qop 0 dona</strong>
+                <span id="reportOutAmount">0 so'm</span>
+              </div>
+              <div class="card kpi">
+                <h3>Jami vozvrat</h3>
+                <strong id="reportReturnQty">0 qop 0 dona</strong>
+                <span id="reportReturnAmount">0 so'm</span>
+              </div>
+              <div class="card kpi">
+                <h3>Sof chiqim</h3>
+                <strong id="reportNetAmount">0 so'm</strong>
+                <span>Chiqim - Vozvrat</span>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table id="reportsTable">
+                <thead>
+                  <tr>
+                    <th>Mahsulot</th>
+                    <th>Kirim</th>
+                    <th>Jami chiqim</th>
+                    <th>Vozvrat</th>
+                    <th>Joriy qoldiq</th>
+                  </tr>
+                </thead>
+                <tbody id="reportsBody"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section id="initialStockSection" class="section">
+          <div class="section-head">
+            <h2>Boshlang'ich Ostatka</h2>
+          </div>
+          <article class="card">
+            <h3>Sklad uchun boshlang'ich son kiritish</h3>
+            <p class="inline-text">Bu yerda faqat mahsulotning boshlang'ich soni (dona) kiritiladi.</p>
+            <form id="initialStockForm">
+              <div class="table-wrap">
+                <table id="initialStockTable">
+                  <thead>
+                    <tr>
+                      <th>Mahsulot</th>
+                      <th>Boshlang'ich soni (dona)</th>
+                      <th>Ko'rinishi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="initialStockBody"></tbody>
+                </table>
+              </div>
+              <p id="initialStockTotal" class="inline-text">Jami boshlang'ich ostatka: 0 dona</p>
+              <div class="actions">
+                <button class="btn btn-primary" type="submit">Boshlang'ich ostatkani saqlash</button>
+              </div>
+              <p id="initialStockNotice" class="notice"></p>
+            </form>
+          </article>
+        </section>
+
+        <section id="profileSection" class="section">
+          <div class="section-head">
+            <h2>Profil</h2>
+          </div>
+          <article class="card">
+            <div class="admin-panel">
+              <div class="admin-head">
+                <div id="adminAvatar" class="avatar avatar-lg"></div>
+                <div>
+                  <label for="adminPhoto" class="btn btn-soft" style="display:inline-block;">Admin rasmi</label>
+                  <input id="adminPhoto" type="file" accept="image/*" class="hidden">
+                  <p class="upload-hint">Rasm Telegramdagidek dumaloq ko'rinadi.</p>
+                </div>
+              </div>
+              <div class="forms-grid">
+                <div class="field">
+                  <label for="adminName">Ism</label>
+                  <input id="adminName" value="Umid">
+                </div>
+                <div class="field">
+                  <label for="adminRoleInput">Rol</label>
+                  <input id="adminRoleInput" value="Sklad Admin">
+                </div>
+                <div class="field">
+                  <label for="adminEmail">Email</label>
+                  <input id="adminEmail" type="email" value="admin@example.com">
+                </div>
+                <div class="field">
+                  <label for="adminStatus">Status</label>
+                  <input id="adminStatus" value="Faol">
+                </div>
+                <div class="field">
+                  <label for="adminLogin">Login</label>
+                  <input id="adminLogin" value="Umid">
+                </div>
+                <div class="field">
+                  <label for="adminPassword">Parol</label>
+                  <input id="adminPassword" type="password" value="5555">
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const PAGE_SIZE = 20;
+    const INITIAL_PRODUCTS = [
+      { name: "РЎР°Р»С„РµС‚РєРё NILPAK 2-С… СЃР»РѕР№РЅС‹Рµ 30x32 Р¶С‘Р»С‚С‹Р№ 30С€С‚/30", pieces: 30, price: 7500 },
+      { name: "РЎР°Р»С„РµС‚РєРё NILPAK 2-С… СЃР»РѕР№РЅС‹Рµ 30x32 Р·РµР»С‘РЅС‹Р№ 30С€С‚/30", pieces: 30, price: 7500 },
+      { name: "РЎР°Р»С„РµС‚РєРё NILPAK 2-С… СЃР»РѕР№РЅС‹Рµ 30*32 РєСЂР°СЃРЅС‹Р№ 30С€С‚/30", pieces: 30, price: 7500 },
+      { name: "РЎР°Р»С„РµС‚РєРё NILPAK 2-С… СЃР»РѕР№РЅС‹Рµ 30*32 РѕСЂР°РЅР¶РµРІС‹Р№ 30С€С‚/30", pieces: 30, price: 7500 },
+      { name: "РЎР°Р»С„РµС‚РєРё NILPAK 2-С… СЃР»РѕР№РЅС‹Рµ 30*32 СЃРёРЅРёР№ 30С€С‚/30", pieces: 30, price: 7500 },
+      { name: "РЎР°Р»С„РµС‚РєРё NILPAK 33*33 qizil 20С€С‚/49", pieces: 48, price: 3250 },
+      { name: "РЎР°Р»С„РµС‚РєРё NILPAK 33*33 Р‘Р•Р›Р«Р™ 20С€С‚/50", pieces: 48, price: 3250 },
+      { name: "РЎР°Р»С„РµС‚РєРё NILPAK 33*33 sariq 20С€С‚/50", pieces: 48, price: 4250 },
+      { name: "РЎР°Р»С„РµС‚РєРё NILPAK 33*33 och yashil 20С€С‚/51", pieces: 48, price: 4250 },
+      { name: "РЎР°Р»С„РµС‚РєРё NILPAK 33*33 qora 20С€С‚/52", pieces: 48, price: 4250 },
+      { name: "РЎР°Р»С„РµС‚РєРё NILPAK 33*33 och sariq 20С€С‚/53", pieces: 48, price: 4250 },
+      { name: "РЎР°Р»С„РµС‚РєРё NILPAK 33*33 yashil 20С€С‚/54", pieces: 48, price: 4250 },
+      { name: "РЎР°Р»С„РµС‚РєРё NILPAK 33*33 havo rang 20С€С‚/55", pieces: 48, price: 4250 },
+      { name: "РЎР°Р»С„РµС‚РєРё NILPAK 33*33 shaftoli 20С€С‚/55", pieces: 48, price: 4250 },
+      { name: "РЎР°Р»С„РµС‚РєРё 27*29 100С€С‚/40", pieces: 40, price: 4700 },
+      { name: "РЎР°Р»С„РµС‚РєРё ELIS 27x29 50С€С‚/70", pieces: 70, price: 2000 },
+      { name: "РЎР°Р»С„РµС‚РєРё Nilpak 27x27 100С€С‚/40", pieces: 40, price: 4000 },
+      { name: "РЎР°Р»С„РµС‚РєРё NILPAK 27*27 50С€С‚/70", pieces: 70, price: 2300 },
+      { name: "РЎР°Р»С„РµС‚РєРё NILPAK 24*24 100С€С‚/40", pieces: 40, price: 3000 },
+      { name: "РЎР°Р»С„РµС‚РєРё NILPAK 24*24 50С€С‚/80", pieces: 80, price: 1700 },
+      { name: "РЎР°Р»С„РµС‚РєРё NILPAK 22*22 100С€С‚/40", pieces: 40, price: 2500 },
+      { name: "РЎР°Р»С„РµС‚РєРё Nilpak 24x24 100С€С‚ С†РІРµС‚РЅРѕР№/40", pieces: 40, price: 5000 },
+      { name: "РЎР°Р»С„РµС‚РєРё NILPAK 24*24 С†РІРµС‚РЅРѕР№ 50С€С‚/80", pieces: 80, price: 2500 },
+      { name: "РЎР°Р»С„РµС‚РєРё 22x24 200С€С‚/20 СЃ СѓР·РѕСЂРѕРј", pieces: 20, price: 5750 },
+      { name: "РЎР°Р»С„РµС‚РєРё 22x24 200С€С‚/20 Рї/СЂ", pieces: 20, price: 5000 },
+      { name: "РЎР°Р»С„РµС‚РєРё Nilpak 23x24 100С€С‚/40", pieces: 40, price: 3000 },
+      { name: "РЎР°Р»С„РµС‚РєРё 22x24 100С€С‚/40 Рї/СЂ", pieces: 40, price: 2500 },
+      { name: "РЎР°Р»С„РµС‚РєРё Nilpak 22x22 40С€С‚/80", pieces: 80, price: 1200 },
+      { name: "РЎР°Р»С„РµС‚РєРё Niice 22x24 50С€С‚/80", pieces: 80, price: 1500 },
+      { name: "РЎР°Р»С„РµС‚РєРё ELIS 22x24 30С€С‚", pieces: 80, price: 1000 },
+      { name: "РЎР°Р»С„РµС‚РєРё ELIS 22x24 40С€С‚/80", pieces: 80, price: 1200 },
+      { name: "Р’Р»Р°Р¶РЅС‹Р№ СЃР°Р»С„РµС‚РєРё РђРЅС‚РёР±Р°РєС‚РµСЂРёР°Р» 120 С€С‚/12", pieces: 12, price: 10000 },
+      { name: "Р’Р»Р°Р¶РЅС‹Р№ СЃР°Р»С„РµС‚РєРё Nilpak РґРµС‚СЃРєРёР№ 120 С€С‚/12", pieces: 12, price: 10000 },
+      { name: "Р’Р»Р°Р¶РЅС‹Р№ СЃР°Р»С„РµС‚РєРё Nilpak СѓРЅРёРІРµСЂСЃР°Р» 120 С€С‚/12", pieces: 12, price: 10000 },
+      { name: "Р’Р»Р°Р¶РЅС‹Р№ СЃР°Р»С„РµС‚РєРё Nilpak 72 С€С‚/24", pieces: 24, price: 6000 },
+      { name: "Р’Р»Р°Р¶РЅС‹Р№ СЃР°Р»С„РµС‚РєРё Nilpak 20С€С‚ Limon/24", pieces: 24, price: 2500 },
+      { name: "Р’Р»Р°Р¶РЅС‹Р№ СЃР°Р»С„РµС‚РєРё Nilpak 15С€С‚/45", pieces: 45, price: 1500 },
+      { name: "Р’Р»Р°Р¶РЅС‹Р№ СЃР°Р»С„РµС‚РєРё Nilpak С€С‚СѓС‡РЅС‹Р№/500", pieces: 500, price: 75000 },
+      { name: "РџРѕР»РѕС‚РµРЅС†Р° \"Р•Р»РёСЃ\" 2С€С‚/12", pieces: 12, price: 7000 },
+      { name: "РџРѕР»РѕС‚РµРЅС†Р° Р”РµР»СЊС„РёРЅ 3-С… СЃР»РѕР№РЅС‹Рµ", pieces: 12, price: 10200 },
+      { name: "РџРѕР»РѕС‚РµРЅС†Р° Р”РµР»СЊС„РёРЅ 2С€С‚/12", pieces: 12, price: 8300 },
+      { name: "РџРѕР»РѕС‚РµРЅС†Р° Nilpak Blue 2С€С‚/12", pieces: 12, price: 8300 },
+      { name: "РџРѕР»РѕС‚РµРЅС†Р° BIG SIZE /12 2 СЃР»РѕСЏ", pieces: 12, price: 12700 },
+      { name: "РџРѕР»РѕС‚РµРЅС†Р° BIG SIZE 3 СЃР»РѕСЏ", pieces: 12, price: 13500 },
+      { name: "РџРѕР»РѕС‚РµРЅС†Р° BIG SIZE 3 СЃР»РѕСЏ СЃРёРЅРёР№", pieces: 12, price: 16000 },
+      { name: "РџРѕР»РѕС‚РµРЅС†Р° BIG SIZE 3 СЃР»РѕСЏ РєСЂР°СЃРЅС‹Р№", pieces: 12, price: 16000 },
+      { name: "РџРѕР»РѕС‚РµРЅС†Р° BIG SIZE 3 СЃР»РѕСЏ Р¶С‘Р»С‚С‹Р№", pieces: 12, price: 16000 },
+      { name: "РџРѕР»РѕС‚РµРЅС†Р° BIG SIZE 3 СЃР»РѕСЏ Р·РµР»С‘РЅС‹Р№", pieces: 12, price: 16000 },
+      { name: "РџРѕР»РѕС‚РµРЅС†Р° Mega Р СѓР»РѕРЅ 69 СЃРј (Р–Р°СЃРјРёРЅ)", pieces: 8, price: 15000 },
+      { name: "РџРћР›РћРўР•РќР¦Рђ РњР•Р“Рђ Р РЈР›РћРќ 46 СЃРј (Р–Р°СЃРјРёРЅ)", pieces: 10, price: 10000 },
+      { name: "Big size СЃРїРµС†РёР°Р»СЊРЅС‹Р№ (700 РіСЂ)", pieces: 9, price: 25000 },
+      { name: "РўСѓР°Р»РµС‚РЅР°СЏ Р‘СѓРјР°РіР° Nilpak 8 С€С‚ AROMA Р РѕР·Р°", pieces: 10, price: 27500 },
+      { name: "РўСѓР°Р»РµС‚РЅР°СЏ Р‘СѓРјР°РіР° Nilpak 8С€С‚ AROMA olma", pieces: 10, price: 27500 },
+      { name: "РўСѓР°Р»РµС‚РЅР°СЏ Р‘СѓРјР°РіР° Nilpak 8С€С‚ AROMA СЃРёСЂРµРЅ", pieces: 10, price: 27500 },
+      { name: "РўСѓР°Р»РµС‚РЅР°СЏ Р‘СѓРјР°РіР° Nilpak 8С€С‚ AROMA Limon", pieces: 10, price: 27500 },
+      { name: "РўСѓР°Р»РµС‚РЅР°СЏ Р‘СѓРјР°РіР° Nilpak 8С€С‚ AROMA РѕРєРµР°РЅ", pieces: 10, price: 27500 },
+      { name: "С‚СѓР°Р»РµС‚РЅР°СЏ Р±СѓРјР°РіР° РќРёР»РїР°Рє 8С€С‚/8", pieces: 8, price: 20000 },
+      { name: "РўРЈРђР›Р•РўРќРђРЇ Р‘РЈРњРђР“Рђ NILPAK 4 С€С‚/12", pieces: 12, price: 10000 },
+      { name: "РўРЈРђР›Р•РўРќРђРЇ Р‘РЈРњРђР“Рђ Р–Р°СЃРјРёРЅ 2 С€С‚/20", pieces: 20, price: 5000 },
+      { name: "Рў/Р± (РІС‚РѕСЂРёС‡РєР°) \"РќРёР»РїР°Рє\" 1/60 Р­РєРѕ РЁС‚СѓС‡РЅР°СЏ (Р‘РµР· Р±Р»РѕРє)", pieces: 10, price: 130000 },
+      { name: "РўРЈРђР›Р•РўРќРђРЇ Р‘РЈРњРђР“Рђ nilpak Р’РўРћР РР§РљРђ 6 С€С‚/10", pieces: 10, price: 13500 },
+      { name: "РўСѓР°Р»РµС‚РЅР°СЏ Р‘СѓРјР°РіР° Nilpak ECO", pieces: 10, price: 13000 },
+      { name: "РўСѓР°Р»РµС‚РЅР°СЏ Р‘СѓРјР°РіР° Р’С‚РѕСЂРёС‡РєР° ECO", pieces: 10, price: 13000 },
+      { name: "РўРЈРђР›Р•РўРќРР™ Р‘РЈРњРђР“Рђ NILPAK 6 С€С‚/8", pieces: 8, price: 14500 },
+      { name: "РўСѓР°Р»РµС‚РЅР°СЏ Р±СѓРјР°РіР° DELUX 3-С… СЃР»РѕР№РЅР°СЏ", pieces: 8, price: 24000 },
+      { name: "РўСѓР°Р»РµС‚РЅР°СЏ Р±СѓРјР°РіР° DELUX РєСѓР± 3-С… СЃР»РѕР№РЅС‹Рµ", pieces: 8, price: 25000 },
+      { name: "РўСѓР°Р»РµС‚РЅР°СЏ Р±СѓРјР°РіР° Nilpak РґРµР»СЊС„РёРЅ 8С€С‚", pieces: 8, price: 17500 },
+      { name: "РўРЈРђР›Р•РўРќРђРЇ Р‘РЈРњРђР“Рђ РњР•Р“Рђ Р РЈР›РћРќ 6С€С‚ 400РіСЂ-(150m)", pieces: 6, price: 12000 },
+      { name: "РўСѓР°Р»РµС‚РЅР°СЏ Р‘СѓРјР°РіР° РјРµРіР°СЂРѕР» 2С€С‚ 700РіСЂ-(250m)", pieces: 2, price: 21000 },
+      { name: "РўРЈРђР›Р•РўРќРђРЇ Р‘РЈРњРђР“Рђ РњР•Р“Рђ Р РЈР›РћРќ 2С€С‚ 500РіСЂ-(190m)", pieces: 2, price: 14000 },
+      { name: "РљР°СЂРѕР±РёС‡РЅРёР№ РџРµСЂР°РјРёРґР° 120 С€С‚/12", pieces: 12, price: 10000 },
+      { name: "РљРђР РћР‘РљРђ РџР Р•РњРРЈРњ (200)/8", pieces: 8, price: 14000 },
+      { name: "РљР°СЂРѕР±РєР° РїСЂРµРјРёРѕРј (100С€С‚)/10", pieces: 10, price: 10000 },
+      { name: "РђР’РўРћ РљРђР РћР‘РР§РќРР™ 70/20", pieces: 20, price: 7500 },
+      { name: "РљР°СЂРѕР±РєР° РљСѓР±РёРє (100С€С‚)/12", pieces: 12, price: 10000 },
+      { name: "РєР°СЂРѕСЂРєР° РїСЂРµРјРёСѓРј 50/20", pieces: 20, price: 6000 },
+      { name: "HORECA РєРѕРЅС‚РµСЂ РґР»СЏ РґРёСЃРїРµРЅСЃРѕСЂ 1", pieces: 1, price: 25000 },
+      { name: "Р”РёСЃРїРµРЅСЃРѕСЂ L РґР»СЏ РєРѕРЅС‚РµСЂРЅ 1", pieces: 1, price: 25000 },
+      { name: "Р”РёСЃРїРµРЅСЃРѕСЂ Z РєРѕРЅС‚РµСЂ 1", pieces: 1, price: 60000 },
+      { name: "Р‘СѓРјР°РіР° РњРµРіР°СЂРѕР»Р» РєРѕРЅС‚РµСЂРЅ 1", pieces: 1, price: 8000 },
+      { name: "HORECA", pieces: 30, price: 3150 },
+      { name: "NILPAK Z (180)/15", pieces: 15, price: 9500 },
+      { name: "NILPAK Z (200)/15", pieces: 15, price: 10400 },
+      { name: "Р”РРЎРџР•РќРЎРћР РќРђРЇ NILPAK L (100)/60", pieces: 60, price: 2600 },
+      { name: "Р”РРЎРџР•РќРЎРћР РќРђРЇ L (75) РџР РћР—Р РђР§РќР«Р™/60", pieces: 60, price: 2000 },
+      { name: "NILPAK Z 150С€С‚/15", pieces: 15, price: 8200 }
+    ];
+
+    const state = {
+      user: null,
+      admin: {
+        name: "Umid",
+        role: "Sklad Admin",
+        email: "admin@example.com",
+        login: "Umid",
+        password: "5555",
+        status: "Faol",
+        photo: ""
+      },
+      products: [],
+      drivers: [],
+      movements: [],
+      initialStock: {},
+      selectedDriverId: null,
+      flowType: "all",
+      globalFilter: {
+        active: false,
+        from: "",
+        to: ""
+      },
+      pagination: {},
+      entryDrafts: {
+        incoming: {},
+        stockEdit: {},
+        driverOut: {},
+        otherOut: {},
+        return: {}
+      }
+    };
+
+    const el = {
+      loginScreen: document.getElementById("loginScreen"),
+      app: document.getElementById("app"),
+      loginForm: document.getElementById("loginForm"),
+      loginError: document.getElementById("loginError"),
+      menuList: document.getElementById("menuList"),
+      sections: document.querySelectorAll(".section"),
+      todayLabel: document.getElementById("todayLabel"),
+      profileChip: document.getElementById("profileChip"),
+      profileDropdown: document.getElementById("profileDropdown"),
+      topbarAvatar: document.getElementById("topbarAvatar"),
+      topbarName: document.getElementById("topbarName"),
+      topbarRole: document.getElementById("topbarRole"),
+      dropdownAvatar: document.getElementById("dropdownAvatar"),
+      dropdownName: document.getElementById("dropdownName"),
+      dropdownRole: document.getElementById("dropdownRole"),
+      dropdownEmail: document.getElementById("dropdownEmail"),
+      dropdownLogin: document.getElementById("dropdownLogin"),
+      dropdownStatus: document.getElementById("dropdownStatus"),
+      adminAvatar: document.getElementById("adminAvatar"),
+      adminPhoto: document.getElementById("adminPhoto"),
+      adminName: document.getElementById("adminName"),
+      adminRoleInput: document.getElementById("adminRoleInput"),
+      adminEmail: document.getElementById("adminEmail"),
+      adminStatus: document.getElementById("adminStatus"),
+      adminLogin: document.getElementById("adminLogin"),
+      adminPassword: document.getElementById("adminPassword"),
+
+      toggleFilterPanel: document.getElementById("toggleFilterPanel"),
+      globalFilterPanel: document.getElementById("globalFilterPanel"),
+      applyGlobalFilter: document.getElementById("applyGlobalFilter"),
+      cancelGlobalFilter: document.getElementById("cancelGlobalFilter"),
+      clearGlobalFilter: document.getElementById("clearGlobalFilter"),
+      globalFrom: document.getElementById("globalFrom"),
+      globalTo: document.getElementById("globalTo"),
+      globalFilterText: document.getElementById("globalFilterText"),
+
+      productForm: document.getElementById("productForm"),
+      deleteProductForm: document.getElementById("deleteProductForm"),
+      productNotice: document.getElementById("productNotice"),
+      deleteProductNotice: document.getElementById("deleteProductNotice"),
+      productsBody: document.getElementById("productsBody"),
+      deleteProductSelect: document.getElementById("deleteProductSelect"),
+      initialStockForm: document.getElementById("initialStockForm"),
+      initialStockBody: document.getElementById("initialStockBody"),
+      initialStockTotal: document.getElementById("initialStockTotal"),
+      initialStockNotice: document.getElementById("initialStockNotice"),
+
+      incomingForm: document.getElementById("incomingForm"),
+      incomingBody: document.getElementById("incomingBody"),
+      incomingEntryBody: document.getElementById("incomingEntryBody"),
+      incomingEntryTotal: document.getElementById("incomingEntryTotal"),
+      incomingNotice: document.getElementById("incomingNotice"),
+      incomingComment: document.getElementById("incomingComment"),
+
+      stockBody: document.getElementById("stockBody"),
+      stockFoot: document.getElementById("stockFoot"),
+      stockEditForm: document.getElementById("stockEditForm"),
+      stockEditOperation: document.getElementById("stockEditOperation"),
+      stockEditEntryBody: document.getElementById("stockEditEntryBody"),
+      stockEditEntryTotal: document.getElementById("stockEditEntryTotal"),
+      stockEditNote: document.getElementById("stockEditNote"),
+      stockEditBody: document.getElementById("stockEditBody"),
+      stockEditNotice: document.getElementById("stockEditNotice"),
+
+      driverForm: document.getElementById("driverForm"),
+      driverNotice: document.getElementById("driverNotice"),
+      driversBody: document.getElementById("driversBody"),
+      driverProfile: document.getElementById("driverProfile"),
+      driverPhoto: document.getElementById("driverPhoto"),
+
+      driverOutForm: document.getElementById("driverOutForm"),
+      driverOutDriver: document.getElementById("driverOutDriver"),
+      driverOutBody: document.getElementById("driverOutBody"),
+      driverOutEntryBody: document.getElementById("driverOutEntryBody"),
+      driverOutEntryTotal: document.getElementById("driverOutEntryTotal"),
+      driverOutNotice: document.getElementById("driverOutNotice"),
+      driverOutComment: document.getElementById("driverOutComment"),
+
+      otherOutForm: document.getElementById("otherOutForm"),
+      otherOutReason: document.getElementById("otherOutReason"),
+      otherOutBody: document.getElementById("otherOutBody"),
+      otherOutEntryBody: document.getElementById("otherOutEntryBody"),
+      otherOutEntryTotal: document.getElementById("otherOutEntryTotal"),
+      otherOutNotice: document.getElementById("otherOutNotice"),
+
+      returnForm: document.getElementById("returnForm"),
+      returnDriver: document.getElementById("returnDriver"),
+      returnsBody: document.getElementById("returnsBody"),
+      returnEntryBody: document.getElementById("returnEntryBody"),
+      returnEntryTotal: document.getElementById("returnEntryTotal"),
+      returnNotice: document.getElementById("returnNotice"),
+      returnComment: document.getElementById("returnComment"),
+
+      dashboardProductsBody: document.getElementById("dashboardProductsBody"),
+      dashboardDriversBody: document.getElementById("dashboardDriversBody"),
+      dashRangeText: document.getElementById("dashRangeText"),
+
+      flowRangeText: document.getElementById("flowRangeText"),
+      dailyFlowBody: document.getElementById("dailyFlowBody"),
+
+      reportRangeText: document.getElementById("reportRangeText"),
+      reportsBody: document.getElementById("reportsBody")
+    };
+
+    const fmtMoney = (n) => `${Number(n || 0).toLocaleString("uz-UZ")} so'm`;
+    const safeDate = (v) => v || "-";
+    function dateToIso(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    const todayIso = () => dateToIso(new Date());
+    const isValidNumber = (v) => Number.isFinite(Number(v));
+    const toInt = (v) => parseInt(v, 10);
+    const escapeHtml = (v) =>
+      String(v ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    const avatarPlaceholderSvg = `
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm0 2c-4.14 0-7.5 2.91-7.5 6.5a1 1 0 0 0 1 1h13a1 1 0 0 0 1-1c0-3.59-3.36-6.5-7.5-6.5Z"></path>
+      </svg>
+    `;
+    const CP1251_CHARS =
+      "ЂЃ‚ѓ„…†‡€‰Љ‹ЊЌЋЏђ‘’“”•–—�™љ›њќћџ ЎўЈ¤Ґ¦§Ё©Є«¬­®Ї°±Ііґµ¶·ё№є»јЅѕї" +
+      "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя";
+
+    function paintAvatar(node, photo, altText = "Avatar") {
+      if (!node) return;
+      node.innerHTML = "";
+      if (photo) {
+        const img = document.createElement("img");
+        img.src = photo;
+        img.alt = altText;
+        node.appendChild(img);
+      } else {
+        node.innerHTML = avatarPlaceholderSvg;
+      }
+    }
+
+    function fileToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.onerror = () => reject(new Error("Fayl o'qilmadi"));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    const REMOTE_STATE_ENDPOINT = "/.netlify/functions/state";
+    const REMOTE_STATE_VERSION = 1;
+    let remoteStateReady = false;
+    let remoteSaveTimer = null;
+    let remoteSaveInFlight = false;
+    let remoteSaveQueued = false;
+
+    function defaultAdminState() {
+      return {
+        name: "Umid",
+        role: "Sklad Admin",
+        email: "admin@example.com",
+        login: "Umid",
+        password: "5555",
+        status: "Faol",
+        photo: ""
+      };
+    }
+
+    function normalizeText(value, fallback = "") {
+      const text = typeof value === "string" ? value.trim() : "";
+      return text || fallback;
+    }
+
+    function toNonNegativeInt(value, fallback = 0) {
+      const n = Number(value);
+      if (!Number.isFinite(n)) return fallback;
+      return Math.max(0, Math.floor(n));
+    }
+
+    function toNonNegativeNumber(value, fallback = 0) {
+      const n = Number(value);
+      if (!Number.isFinite(n)) return fallback;
+      return Math.max(0, n);
+    }
+
+    function buildPersistedState() {
+      return {
+        version: REMOTE_STATE_VERSION,
+        admin: { ...state.admin },
+        products: state.products.map((p) => ({
+          id: p.id,
+          name: p.name,
+          piecesPerBag: p.piecesPerBag,
+          priceBag: p.priceBag,
+          pricePiece: p.pricePiece
+        })),
+        drivers: state.drivers.map((d) => ({
+          id: d.id,
+          name: d.name,
+          phone: d.phone || "",
+          vehicle: d.vehicle || "",
+          photo: d.photo || ""
+        })),
+        movements: state.movements.map((m) => ({
+          id: m.id,
+          date: m.date,
+          type: m.type,
+          productId: m.productId,
+          unit: m.unit,
+          qty: m.qty,
+          amount: m.amount,
+          driverId: m.driverId || null,
+          note: m.note || ""
+        })),
+        initialStock: { ...state.initialStock }
+      };
+    }
+
+    function normalizePersistedState(raw) {
+      if (!raw || typeof raw !== "object") return null;
+
+      const adminBase = defaultAdminState();
+      const rawAdmin = raw.admin && typeof raw.admin === "object" ? raw.admin : {};
+      const admin = {
+        name: normalizeText(rawAdmin.name, adminBase.name),
+        role: normalizeText(rawAdmin.role, adminBase.role),
+        email: normalizeText(rawAdmin.email, adminBase.email),
+        login: normalizeText(rawAdmin.login, adminBase.login),
+        password: normalizeText(rawAdmin.password, adminBase.password),
+        status: normalizeText(rawAdmin.status, adminBase.status),
+        photo: typeof rawAdmin.photo === "string" ? rawAdmin.photo : ""
+      };
+
+      const products = Array.isArray(raw.products)
+        ? raw.products
+            .map((p) => {
+              if (!p || typeof p !== "object") return null;
+              const name = normalizeText(p.name);
+              if (!name) return null;
+              return {
+                id: normalizeText(p.id) || uid("product"),
+                name,
+                piecesPerBag: Math.max(1, toNonNegativeInt(p.piecesPerBag, 1)),
+                priceBag: toNonNegativeNumber(p.priceBag, 0),
+                pricePiece: toNonNegativeNumber(p.pricePiece, 0)
+              };
+            })
+            .filter(Boolean)
+        : [];
+
+      const productIds = new Set(products.map((p) => p.id));
+
+      const drivers = Array.isArray(raw.drivers)
+        ? raw.drivers
+            .map((d) => {
+              if (!d || typeof d !== "object") return null;
+              const name = normalizeText(d.name);
+              if (!name) return null;
+              return {
+                id: normalizeText(d.id) || uid("driver"),
+                name,
+                phone: typeof d.phone === "string" ? d.phone : "",
+                vehicle: typeof d.vehicle === "string" ? d.vehicle : "",
+                photo: typeof d.photo === "string" ? d.photo : ""
+              };
+            })
+            .filter(Boolean)
+        : [];
+
+      const driverIds = new Set(drivers.map((d) => d.id));
+      const allowedTypes = new Set(["incoming", "adjust_in", "adjust_out", "driver_out", "other_out", "driver_return"]);
+
+      const movements = Array.isArray(raw.movements)
+        ? raw.movements
+            .map((m) => {
+              if (!m || typeof m !== "object") return null;
+              const type = normalizeText(m.type);
+              if (!allowedTypes.has(type)) return null;
+              const productId = normalizeText(m.productId);
+              if (!productIds.has(productId)) return null;
+              const unit = m.unit === "bag" ? "bag" : "piece";
+              const qty = toNonNegativeInt(m.qty, 0);
+              if (qty <= 0) return null;
+              const driverId = normalizeText(m.driverId);
+              return {
+                id: normalizeText(m.id) || uid("mv"),
+                date: normalizeText(m.date, todayIso()),
+                type,
+                productId,
+                unit,
+                qty,
+                pieces: 0,
+                amount: toNonNegativeNumber(m.amount, 0),
+                driverId: driverId && driverIds.has(driverId) ? driverId : null,
+                note: typeof m.note === "string" ? m.note : ""
+              };
+            })
+            .filter(Boolean)
+        : [];
+
+      movements.forEach((m) => {
+        const p = products.find((x) => x.id === m.productId);
+        m.pieces = p ? toPieces(p, m.qty, m.unit) : 0;
+      });
+
+      const initialStock = {};
+      const rawInitialStock = raw.initialStock && typeof raw.initialStock === "object" ? raw.initialStock : {};
+      products.forEach((p) => {
+        initialStock[p.id] = toNonNegativeInt(rawInitialStock[p.id], 0);
+      });
+
+      return { admin, products, drivers, movements, initialStock };
+    }
+
+    async function persistStateNow() {
+      if (!remoteStateReady) return;
+      if (remoteSaveInFlight) {
+        remoteSaveQueued = true;
+        return;
+      }
+      remoteSaveInFlight = true;
+      try {
+        const response = await fetch(REMOTE_STATE_ENDPOINT, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(buildPersistedState())
+        });
+        if (!response.ok) {
+          throw new Error(`Saqlash xatosi: ${response.status}`);
+        }
+      } catch (error) {
+        console.warn("Ma'lumotlarni saqlashda xatolik:", error);
+      } finally {
+        remoteSaveInFlight = false;
+        if (remoteSaveQueued) {
+          remoteSaveQueued = false;
+          requestStateSave();
+        }
+      }
+    }
+
+    function requestStateSave() {
+      if (!remoteStateReady) return;
+      clearTimeout(remoteSaveTimer);
+      remoteSaveTimer = setTimeout(() => {
+        persistStateNow();
+      }, 700);
+    }
+
+    async function loadRemoteState() {
+      try {
+        const response = await fetch(REMOTE_STATE_ENDPOINT, { method: "GET", cache: "no-store" });
+        if (!response.ok) throw new Error(`Server javobi: ${response.status}`);
+        const payload = await response.json();
+        const normalized = normalizePersistedState(payload?.data || null);
+        if (normalized) {
+          state.admin = normalized.admin;
+          state.products = normalized.products;
+          state.drivers = normalized.drivers;
+          state.movements = normalized.movements;
+          state.initialStock = normalized.initialStock;
+          state.selectedDriverId = state.drivers[0]?.id || null;
+        } else {
+          seedInitialProducts();
+        }
+      } catch (error) {
+        console.warn("Serverdan ma'lumot yuklanmadi, lokal holat ishlatiladi:", error);
+        seedInitialProducts();
+      } finally {
+        remoteStateReady = true;
+      }
+    }
+
+    function decodeMojibake(text) {
+      const bytes = [];
+      for (const ch of String(text || "")) {
+        const code = ch.charCodeAt(0);
+        const cpIndex = CP1251_CHARS.indexOf(ch);
+        if (code <= 0xff) bytes.push(code);
+        else if (cpIndex >= 0) bytes.push(0x80 + cpIndex);
+        else return text;
+      }
+      try {
+        return new TextDecoder("utf-8", { fatal: true }).decode(new Uint8Array(bytes));
+      } catch {
+        return text;
+      }
+    }
+
+    function uid(prefix) {
+      return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
+    }
+
+    function getProduct(id) {
+      return state.products.find((p) => p.id === id);
+    }
+
+    function getDriver(id) {
+      return state.drivers.find((d) => d.id === id);
+    }
+
+    function inRange(date, from, to) {
+      if (from && date < from) return false;
+      if (to && date > to) return false;
+      return true;
+    }
+
+    function movementDirection(type) {
+      if (type === "incoming" || type === "adjust_in" || type === "driver_return") return "in";
+      return "out";
+    }
+
+    function movementLabel(type) {
+      if (type === "incoming") return "<span class='tag in'>Kirim</span>";
+      if (type === "adjust_in") return "<span class='tag edit'>Tahrir +</span>";
+      if (type === "adjust_out") return "<span class='tag edit'>Tahrir -</span>";
+      if (type === "driver_out") return "<span class='tag out'>Chiqim</span>";
+      if (type === "other_out") return "<span class='tag out'>Boshqa chiqim</span>";
+      return "<span class='tag in'>Vozvrat</span>";
+    }
+
+    function movementSource(type) {
+      if (type === "driver_out") return "Haydovchilar Tovari";
+      if (type === "other_out") return "Boshqa Chiqimlar";
+      if (type === "driver_return") return "Vozvratlar";
+      if (type === "incoming") return "Skladga Kirim";
+      return "Sklad Tahrir";
+    }
+
+    function toPieces(product, qty, unit) {
+      if (!product) return 0;
+      return unit === "bag" ? qty * product.piecesPerBag : qty;
+    }
+
+    function qtyToText(product, pieces) {
+      if (!product || product.piecesPerBag <= 0) return "0 dona";
+      const abs = Math.max(0, pieces);
+      const bag = Math.floor(abs / product.piecesPerBag);
+      const rem = abs % product.piecesPerBag;
+      return `${bag} qop ${rem} dona`;
+    }
+
+    function movementQtyText(m) {
+      const p = getProduct(m.productId);
+      if (!p) return "-";
+      const unitName = m.unit === "bag" ? "qop" : "dona";
+      return `${m.qty} ${unitName} (${qtyToText(p, m.pieces)})`;
+    }
+
+    function stockMap() {
+      const map = {};
+      state.products.forEach((p) => {
+        map[p.id] = Math.max(0, toInt(state.initialStock[p.id]) || 0);
+      });
+      state.movements.forEach((m) => {
+        if (!(m.productId in map)) return;
+        if (movementDirection(m.type) === "in") map[m.productId] += m.pieces;
+        else map[m.productId] -= m.pieces;
+      });
+      return map;
+    }
+
+    function sumBy(items, fn) {
+      return items.reduce((acc, it) => acc + fn(it), 0);
+    }
+
+    function showNotice(node, text, kind) {
+      node.textContent = text;
+      node.className = `notice ${kind}`;
+    }
+
+    function clearNotice(node) {
+      node.textContent = "";
+      node.className = "notice";
+    }
+
+    function tableEmpty(body, colspan, text) {
+      body.innerHTML = `<tr><td class="empty" colspan="${colspan}">${text}</td></tr>`;
+    }
+
+    function movementDeleteButton(id) {
+      return `<button class="btn btn-danger movement-delete-btn" data-movement-delete-id="${id}" type="button">O'chirish</button>`;
+    }
+
+    function filterLabel() {
+      if (!state.globalFilter.active) return "Filtr: o'chirilgan";
+      return `Filtr: ${state.globalFilter.from} dan ${state.globalFilter.to} gacha`;
+    }
+
+    function shiftDate(baseDate, days) {
+      const d = new Date(baseDate);
+      d.setDate(d.getDate() + days);
+      return dateToIso(d);
+    }
+
+    function applyFilterPreset(preset) {
+      const now = new Date();
+      const today = dateToIso(now);
+      let from = today;
+      let to = today;
+      if (preset === "yesterday") {
+        from = shiftDate(now, -1);
+        to = from;
+      }
+      if (preset === "last7") {
+        from = shiftDate(now, -6);
+        to = today;
+      }
+      if (preset === "last30") {
+        from = shiftDate(now, -29);
+        to = today;
+      }
+      if (preset === "prevMonth") {
+        const first = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const last = new Date(now.getFullYear(), now.getMonth(), 0);
+        from = dateToIso(first);
+        to = dateToIso(last);
+      }
+      if (preset === "custom") {
+        return;
+      }
+      el.globalFrom.value = from;
+      el.globalTo.value = to;
+      document.querySelectorAll(".filter-preset-btn").forEach((b) => b.classList.toggle("active", b.dataset.filterPreset === preset));
+    }
+
+    function movementInGlobalFilter(m) {
+      if (!state.globalFilter.active) return true;
+      return inRange(m.date, state.globalFilter.from, state.globalFilter.to);
+    }
+
+    function ensurePager(tableId) {
+      const id = `${tableId}Pager`;
+      let node = document.getElementById(id);
+      if (!node) {
+        const table = document.getElementById(tableId);
+        if (!table || !table.parentElement) return null;
+        node = document.createElement("div");
+        node.className = "pager";
+        node.id = id;
+        table.parentElement.insertAdjacentElement("afterend", node);
+      }
+      return node;
+    }
+
+    function pageInfo(key, totalItems) {
+      const pages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
+      let page = state.pagination[key] || 1;
+      if (page > pages) page = pages;
+      if (page < 1) page = 1;
+      state.pagination[key] = page;
+      const start = (page - 1) * PAGE_SIZE;
+      const end = start + PAGE_SIZE;
+      return { page, pages, start, end };
+    }
+
+    function slicePage(rows, key) {
+      const p = pageInfo(key, rows.length);
+      return { pageRows: rows.slice(p.start, p.end), page: p.page, pages: p.pages };
+    }
+
+    function renderPager(tableId, key, totalItems) {
+      const pager = ensurePager(tableId);
+      if (!pager) return;
+      const p = pageInfo(key, totalItems);
+      pager.innerHTML = `
+        <button class="pager-btn" data-pager-key="${key}" data-pager-move="-1" ${p.page <= 1 ? "disabled" : ""}>Oldingi</button>
+        <span class="pager-info">${p.page} / ${p.pages} (har betda 20 qator)</span>
+        <button class="pager-btn" data-pager-key="${key}" data-pager-move="1" ${p.page >= p.pages ? "disabled" : ""}>Keyingi</button>
+      `;
+    }
+
+    function ensureEntryDraft(type, productOrId) {
+      const product = typeof productOrId === "string" ? getProduct(productOrId) : productOrId;
+      const productId = product ? product.id : productOrId;
+      if (!state.entryDrafts[type][productId]) {
+        state.entryDrafts[type][productId] = {
+          bag: "",
+          piece: "",
+          bagPrice: product ? product.priceBag : "",
+          piecePrice: product ? product.pricePiece : "",
+          amount: ""
+        };
+      }
+      const draft = state.entryDrafts[type][productId];
+      if (product) {
+        if (draft.bagPrice === "" || !isValidNumber(draft.bagPrice)) draft.bagPrice = product.priceBag;
+        if (draft.piecePrice === "" || !isValidNumber(draft.piecePrice)) draft.piecePrice = product.pricePiece;
+      }
+      return draft;
+    }
+
+    function clearEntryDraft(type) {
+      state.entryDrafts[type] = {};
+      updateEntryTotal(type);
+    }
+
+    function calcAmountByPrices(bagQty, pieceQty, bagPrice, piecePrice) {
+      return bagQty * bagPrice + pieceQty * piecePrice;
+    }
+
+    function splitAmountsByPrices(bagQty, pieceQty, bagPrice, piecePrice, totalAmount) {
+      const autoBag = bagQty > 0 ? bagQty * bagPrice : 0;
+      const autoPiece = pieceQty > 0 ? pieceQty * piecePrice : 0;
+      const total = isValidNumber(totalAmount) ? Number(totalAmount) : autoBag + autoPiece;
+      if (bagQty > 0 && pieceQty > 0) {
+        const denom = autoBag + autoPiece || 1;
+        const bagAmount = Math.round((total * autoBag) / denom);
+        return { bagAmount, pieceAmount: total - bagAmount };
+      }
+      if (bagQty > 0) return { bagAmount: total, pieceAmount: 0 };
+      if (pieceQty > 0) return { bagAmount: 0, pieceAmount: total };
+      return { bagAmount: 0, pieceAmount: 0 };
+    }
+
+    function entryTotalNode(type) {
+      if (type === "incoming") return el.incomingEntryTotal;
+      if (type === "stockEdit") return el.stockEditEntryTotal;
+      if (type === "driverOut") return el.driverOutEntryTotal;
+      if (type === "otherOut") return el.otherOutEntryTotal;
+      return el.returnEntryTotal;
+    }
+
+    function updateEntryTotal(type) {
+      const node = entryTotalNode(type);
+      if (!node) return;
+      const total = parsedDraftRows(type).reduce((acc, r) => acc + Number(r.amount || 0), 0);
+      node.textContent = `Jami summa: ${fmtMoney(total)}`;
+    }
+
+    function addProduct(name, piecesPerBag, priceBag, pricePiece) {
+      const safePieces = Math.max(1, Number(piecesPerBag || 1));
+      const safeBagPrice = Math.max(0, Number(priceBag || 0));
+      const finalPiecePrice = isValidNumber(pricePiece) ? Number(pricePiece) : Math.round(safeBagPrice / safePieces);
+      const id = uid("product");
+      state.products.push({
+        id,
+        name,
+        piecesPerBag: safePieces,
+        priceBag: safeBagPrice,
+        pricePiece: Math.max(0, finalPiecePrice)
+      });
+      if (!(id in state.initialStock)) state.initialStock[id] = 0;
+      requestStateSave();
+    }
+
+    function seedInitialProducts() {
+      if (state.products.length > 0 || state.movements.length > 0) return;
+      INITIAL_PRODUCTS.forEach((item) => {
+        addProduct(decodeMojibake(item.name), item.pieces, item.price * item.pieces, item.price);
+      });
+    }
+
+    function addDriver(name, phone, vehicle, photo = "") {
+      state.drivers.push({ id: uid("driver"), name, phone, vehicle, photo });
+      if (!state.selectedDriverId) state.selectedDriverId = state.drivers[0].id;
+      requestStateSave();
+    }
+
+    function addMovement({ date, type, productId, unit, qty, amount, driverId = null, note = "" }) {
+      const product = getProduct(productId);
+      if (!product) return false;
+      state.movements.push({
+        id: uid("mv"),
+        date,
+        type,
+        productId,
+        unit,
+        qty,
+        pieces: toPieces(product, qty, unit),
+        amount: Number(amount || 0),
+        driverId,
+        note
+      });
+      requestStateSave();
+      return true;
+    }
+
+    function renderSelectors() {
+      const productSelectIds = ["deleteProductSelect"];
+      productSelectIds.forEach((id) => {
+        const select = document.getElementById(id);
+        if (!select) return;
+        select.innerHTML = "";
+        if (!state.products.length) {
+          select.innerHTML = "<option value=''>Mahsulot yo'q</option>";
+          return;
+        }
+        state.products.forEach((p) => {
+          const op = document.createElement("option");
+          op.value = p.id;
+          op.textContent = p.name;
+          select.appendChild(op);
+        });
+      });
+
+      const driverSelectIds = ["driverOutDriver", "returnDriver"];
+      driverSelectIds.forEach((id) => {
+        const select = document.getElementById(id);
+        if (!select) return;
+        select.innerHTML = "";
+        if (!state.drivers.length) {
+          select.innerHTML = "<option value=''>Haydovchi yo'q</option>";
+          return;
+        }
+        state.drivers.forEach((d) => {
+          const op = document.createElement("option");
+          op.value = d.id;
+          op.textContent = d.name;
+          select.appendChild(op);
+        });
+      });
+    }
+
+    function renderEntryTable(type, body, tableId) {
+      if (!state.products.length) {
+        tableEmpty(body, 6, "Mahsulot qo'shilgach ro'yxat chiqadi.");
+        renderPager(tableId, `${type}Entry`, 0);
+        updateEntryTotal(type);
+        return;
+      }
+      const rows = [...state.products];
+      const { pageRows } = slicePage(rows, `${type}Entry`);
+      body.innerHTML = "";
+      pageRows.forEach((p) => {
+        const d = ensureEntryDraft(type, p);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${p.name}</td>
+          <td><input class="entry-input" data-entry-type="${type}" data-product-id="${p.id}" data-field="bagPrice" type="number" min="0" step="1" value="${d.bagPrice}"></td>
+          <td><input class="entry-input" data-entry-type="${type}" data-product-id="${p.id}" data-field="piecePrice" type="number" min="0" step="1" value="${d.piecePrice}"></td>
+          <td><input class="entry-input" data-entry-type="${type}" data-product-id="${p.id}" data-field="bag" type="number" min="0" step="1" value="${d.bag}"></td>
+          <td><input class="entry-input" data-entry-type="${type}" data-product-id="${p.id}" data-field="piece" type="number" min="0" step="1" value="${d.piece}"></td>
+          <td><input class="entry-input" data-entry-type="${type}" data-product-id="${p.id}" data-field="amount" type="number" min="0" step="1" value="${d.amount}"></td>
+        `;
+        body.appendChild(tr);
+      });
+      renderPager(tableId, `${type}Entry`, rows.length);
+      updateEntryTotal(type);
+    }
+
+    function parsedDraftRows(type) {
+      const result = [];
+      Object.entries(state.entryDrafts[type]).forEach(([productId, row]) => {
+        const product = getProduct(productId);
+        if (!product) return;
+        const bagQty = Math.max(0, toInt(row.bag) || 0);
+        const pieceQty = Math.max(0, toInt(row.piece) || 0);
+        const hasQty = bagQty > 0 || pieceQty > 0;
+        if (!hasQty) return;
+        const bagPrice = isValidNumber(row.bagPrice) ? Number(row.bagPrice) : Number(product.priceBag || 0);
+        const piecePrice = isValidNumber(row.piecePrice) ? Number(row.piecePrice) : Number(product.pricePiece || 0);
+        const autoAmount = calcAmountByPrices(bagQty, pieceQty, bagPrice, piecePrice);
+        const amount = row.amount === "" || !isValidNumber(row.amount) ? autoAmount : Number(row.amount);
+        result.push({ productId, bagQty, pieceQty, bagPrice, piecePrice, amount });
+      });
+      return result;
+    }
+
+    function applyEntryRows({ type, date, driverId = null, noticeNode, note = "" }) {
+      const rows = parsedDraftRows(type);
+      if (!rows.length) {
+        showNotice(noticeNode, "Hech bo'lmasa bitta qatorda miqdor kiriting.", "bad");
+        return false;
+      }
+      if (!date) {
+        showNotice(noticeNode, "Sana tanlang.", "bad");
+        return false;
+      }
+      const sMap = stockMap();
+      if (type === "driverOut" || type === "otherOut") {
+        const need = {};
+        rows.forEach((r) => {
+          const p = getProduct(r.productId);
+          if (!p) return;
+          const pieces = r.bagQty * p.piecesPerBag + r.pieceQty;
+          need[r.productId] = (need[r.productId] || 0) + pieces;
+        });
+        for (const [productId, pieces] of Object.entries(need)) {
+          if ((sMap[productId] || 0) < pieces) {
+            const p = getProduct(productId);
+            showNotice(noticeNode, `Skladda yetarli qoldiq yo'q: ${p ? p.name : productId}`, "bad");
+            return false;
+          }
+        }
+      }
+
+      rows.forEach((r) => {
+        const p = getProduct(r.productId);
+        if (!p) return;
+        const amounts = splitAmountsByPrices(r.bagQty, r.pieceQty, r.bagPrice, r.piecePrice, r.amount);
+        const movementType =
+          type === "incoming" ? "incoming" : type === "driverOut" ? "driver_out" : type === "otherOut" ? "other_out" : "driver_return";
+        if (r.bagQty > 0) {
+          addMovement({
+            date,
+            type: movementType,
+            productId: r.productId,
+            unit: "bag",
+            qty: r.bagQty,
+            amount: amounts.bagAmount,
+            driverId,
+            note
+          });
+        }
+        if (r.pieceQty > 0) {
+          addMovement({
+            date,
+            type: movementType,
+            productId: r.productId,
+            unit: "piece",
+            qty: r.pieceQty,
+            amount: amounts.pieceAmount,
+            driverId,
+            note
+          });
+        }
+      });
+      clearEntryDraft(type);
+      return true;
+    }
+
+    function applyStockEditRows({ date, operation, noticeNode, note = "" }) {
+      const rows = parsedDraftRows("stockEdit");
+      if (!rows.length) {
+        showNotice(noticeNode, "Hech bo'lmasa bitta mahsulot qatorida miqdor kiriting.", "bad");
+        return false;
+      }
+      if (!date) {
+        showNotice(noticeNode, "Sana tanlang.", "bad");
+        return false;
+      }
+
+      const sMap = stockMap();
+      if (operation === "subtract") {
+        for (const r of rows) {
+          const p = getProduct(r.productId);
+          if (!p) continue;
+          const pieces = r.bagQty * p.piecesPerBag + r.pieceQty;
+          if ((sMap[r.productId] || 0) < pieces) {
+            showNotice(noticeNode, `Skladda yetarli qoldiq yo'q: ${p.name}`, "bad");
+            return false;
+          }
+        }
+      }
+
+      let changed = false;
+      rows.forEach((r) => {
+        const p = getProduct(r.productId);
+        if (!p) return;
+        if (operation === "reset") {
+          const current = sMap[r.productId] || 0;
+          if (current <= 0) return;
+          const bagQty = Math.floor(current / p.piecesPerBag);
+          const pieceQty = current % p.piecesPerBag;
+          const resetAmount = calcAmountByPrices(bagQty, pieceQty, r.bagPrice, r.piecePrice);
+          const amounts = splitAmountsByPrices(bagQty, pieceQty, r.bagPrice, r.piecePrice, resetAmount);
+          if (bagQty > 0) {
+            addMovement({
+              date,
+              type: "adjust_out",
+              productId: r.productId,
+              unit: "bag",
+              qty: bagQty,
+              amount: amounts.bagAmount,
+              note: note || "Qoldiq 0 qilindi"
+            });
+          }
+          if (pieceQty > 0) {
+            addMovement({
+              date,
+              type: "adjust_out",
+              productId: r.productId,
+              unit: "piece",
+              qty: pieceQty,
+              amount: amounts.pieceAmount,
+              note: note || "Qoldiq 0 qilindi"
+            });
+          }
+          changed = true;
+          return;
+        }
+
+        const amounts = splitAmountsByPrices(r.bagQty, r.pieceQty, r.bagPrice, r.piecePrice, r.amount);
+        const movementType = operation === "add" ? "adjust_in" : "adjust_out";
+        const defaultNote = operation === "add" ? "Skladga qo'shildi" : "Skladdan kamaytirildi";
+        if (r.bagQty > 0) {
+          addMovement({
+            date,
+            type: movementType,
+            productId: r.productId,
+            unit: "bag",
+            qty: r.bagQty,
+            amount: amounts.bagAmount,
+            note: note || defaultNote
+          });
+          changed = true;
+        }
+        if (r.pieceQty > 0) {
+          addMovement({
+            date,
+            type: movementType,
+            productId: r.productId,
+            unit: "piece",
+            qty: r.pieceQty,
+            amount: amounts.pieceAmount,
+            note: note || defaultNote
+          });
+          changed = true;
+        }
+      });
+
+      if (!changed) {
+        showNotice(noticeNode, "Tanlangan qatorlarda o'zgartiriladigan qoldiq topilmadi.", "bad");
+        return false;
+      }
+      clearEntryDraft("stockEdit");
+      return true;
+    }
+
+    function renderProducts() {
+      if (!state.products.length) {
+        tableEmpty(el.productsBody, 8, "Hozircha mahsulot kiritilmagan.");
+        renderPager("productsTable", "products", 0);
+        return;
+      }
+      const sMap = stockMap();
+      const rows = state.products.map((p, i) => {
+        const stockPieces = sMap[p.id] || 0;
+        const stockValue = Math.floor(stockPieces / p.piecesPerBag) * p.priceBag + (stockPieces % p.piecesPerBag) * p.pricePiece;
+        return { product: p, index: i + 1, stock: qtyToText(p, stockPieces), value: stockValue };
+      });
+      const { pageRows } = slicePage(rows, "products");
+      el.productsBody.innerHTML = "";
+      pageRows.forEach((r) => {
+        const tr = document.createElement("tr");
+        const p = r.product;
+        tr.innerHTML = `
+          <td>${r.index}</td>
+          <td><input class="product-edit-input" data-product-edit-id="${p.id}" data-field="name" value="${escapeHtml(p.name)}"></td>
+          <td><input class="product-edit-input" data-product-edit-id="${p.id}" data-field="piecesPerBag" type="number" min="1" step="1" value="${p.piecesPerBag}"></td>
+          <td><input class="product-edit-input" data-product-edit-id="${p.id}" data-field="priceBag" type="number" min="0" step="1" value="${p.priceBag}"></td>
+          <td><input class="product-edit-input" data-product-edit-id="${p.id}" data-field="pricePiece" type="number" min="0" step="1" value="${p.pricePiece}"></td>
+          <td>${r.stock}</td>
+          <td>${fmtMoney(r.value)}</td>
+          <td><button class="btn btn-soft product-save-btn" data-product-save-id="${p.id}" type="button">Saqlash</button></td>
+        `;
+        el.productsBody.appendChild(tr);
+      });
+      renderPager("productsTable", "products", rows.length);
+    }
+
+    function renderInitialStock() {
+      if (!state.products.length) {
+        tableEmpty(el.initialStockBody, 3, "Boshlang'ich ostatka uchun mahsulot qo'shing.");
+        renderPager("initialStockTable", "initialStock", 0);
+        el.initialStockTotal.textContent = "Jami boshlang'ich ostatka: 0 dona";
+        return;
+      }
+      const rows = [...state.products];
+      const { pageRows } = slicePage(rows, "initialStock");
+      el.initialStockBody.innerHTML = "";
+      pageRows.forEach((p) => {
+        const pieces = Math.max(0, toInt(state.initialStock[p.id]) || 0);
+        if (!(p.id in state.initialStock)) state.initialStock[p.id] = 0;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${escapeHtml(p.name)}</td>
+          <td><input class="product-edit-input" data-initial-stock-id="${p.id}" type="number" min="0" step="1" value="${pieces}"></td>
+          <td>${qtyToText(p, pieces)}</td>
+        `;
+        el.initialStockBody.appendChild(tr);
+      });
+      renderPager("initialStockTable", "initialStock", rows.length);
+      const totalPieces = state.products.reduce((acc, p) => acc + Math.max(0, toInt(state.initialStock[p.id]) || 0), 0);
+      el.initialStockTotal.textContent = `Jami boshlang'ich ostatka: ${totalPieces.toLocaleString("uz-UZ")} dona`;
+    }
+
+    function renderIncoming() {
+      const rows = state.movements
+        .filter((m) => m.type === "incoming")
+        .filter(movementInGlobalFilter)
+        .sort((a, b) => (a.date < b.date ? 1 : -1));
+      if (!rows.length) {
+        tableEmpty(el.incomingBody, 5, "Skladga kirimlar yo'q.");
+        renderPager("incomingTable", "incoming", 0);
+      } else {
+        const { pageRows } = slicePage(rows, "incoming");
+        el.incomingBody.innerHTML = "";
+        pageRows.forEach((m) => {
+          const p = getProduct(m.productId);
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${safeDate(m.date)}</td>
+            <td>${p ? p.name : "-"}</td>
+            <td>${movementQtyText(m)}</td>
+            <td>${fmtMoney(m.amount)}</td>
+            <td>${movementDeleteButton(m.id)}</td>
+          `;
+          el.incomingBody.appendChild(tr);
+        });
+        renderPager("incomingTable", "incoming", rows.length);
+      }
+      renderEntryTable("incoming", el.incomingEntryBody, "incomingEntryTable");
+    }
+
+    function renderStock() {
+      const sMap = stockMap();
+      const stockRows = state.products.map((p) => {
+        const pieces = sMap[p.id] || 0;
+        const value = Math.floor(pieces / p.piecesPerBag) * p.priceBag + (pieces % p.piecesPerBag) * p.pricePiece;
+        return { p, pieces, value };
+      });
+      const stockTotal = sumBy(stockRows, (r) => r.value);
+      el.stockFoot.innerHTML = `
+        <tr>
+          <th colspan="4">Jami sklad summasi</th>
+          <th>${fmtMoney(stockTotal)}</th>
+          <th></th>
+        </tr>
+      `;
+      if (!stockRows.length) {
+        tableEmpty(el.stockBody, 6, "Mahsulot qo'shilgandan keyin ostatka ko'rinadi.");
+        renderPager("stockTable", "stock", 0);
+      } else {
+        const { pageRows } = slicePage(stockRows, "stock");
+        el.stockBody.innerHTML = "";
+        pageRows.forEach((r) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${r.p.name}</td>
+            <td><input class="product-edit-input" data-stock-price-id="${r.p.id}" data-field="priceBag" type="number" min="0" step="1" value="${r.p.priceBag}"></td>
+            <td><input class="product-edit-input" data-stock-price-id="${r.p.id}" data-field="pricePiece" type="number" min="0" step="1" value="${r.p.pricePiece}"></td>
+            <td>${qtyToText(r.p, r.pieces)}</td>
+            <td>${fmtMoney(r.value)}</td>
+            <td><button class="btn btn-soft stock-price-save-btn" data-stock-price-save-id="${r.p.id}" type="button">Saqlash</button></td>
+          `;
+          el.stockBody.appendChild(tr);
+        });
+        renderPager("stockTable", "stock", stockRows.length);
+      }
+      renderEntryTable("stockEdit", el.stockEditEntryBody, "stockEditEntryTable");
+
+      const edits = state.movements
+        .filter((m) => m.type === "adjust_in" || m.type === "adjust_out")
+        .filter(movementInGlobalFilter)
+        .sort((a, b) => (a.date < b.date ? 1 : -1));
+      if (!edits.length) {
+        tableEmpty(el.stockEditBody, 7, "Sklad tahrir jurnali bo'sh.");
+        renderPager("stockEditTable", "stockEdit", 0);
+      } else {
+        const { pageRows } = slicePage(edits, "stockEdit");
+        el.stockEditBody.innerHTML = "";
+        pageRows.forEach((m) => {
+          const p = getProduct(m.productId);
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${safeDate(m.date)}</td>
+            <td>${movementLabel(m.type)}</td>
+            <td>${p ? p.name : "-"}</td>
+            <td>${movementQtyText(m)}</td>
+            <td>${fmtMoney(m.amount)}</td>
+            <td>${m.note || "-"}</td>
+            <td>${movementDeleteButton(m.id)}</td>
+          `;
+          el.stockEditBody.appendChild(tr);
+        });
+        renderPager("stockEditTable", "stockEdit", edits.length);
+      }
+    }
+
+    function renderAdminPanel() {
+      const admin = state.admin;
+      const name = admin.name || "Admin";
+      const role = admin.role || "Admin";
+      const email = admin.email || "-";
+      const login = admin.login || "-";
+      const status = admin.status || "-";
+
+      if (el.adminName && document.activeElement !== el.adminName) el.adminName.value = admin.name;
+      if (el.adminRoleInput && document.activeElement !== el.adminRoleInput) el.adminRoleInput.value = admin.role;
+      if (el.adminEmail && document.activeElement !== el.adminEmail) el.adminEmail.value = admin.email;
+      if (el.adminStatus && document.activeElement !== el.adminStatus) el.adminStatus.value = admin.status;
+      if (el.adminLogin && document.activeElement !== el.adminLogin) el.adminLogin.value = admin.login;
+      if (el.adminPassword && document.activeElement !== el.adminPassword) el.adminPassword.value = admin.password;
+
+      if (el.topbarName) el.topbarName.textContent = name;
+      if (el.topbarRole) el.topbarRole.textContent = role;
+      if (el.dropdownName) el.dropdownName.textContent = name;
+      if (el.dropdownRole) el.dropdownRole.textContent = role;
+      if (el.dropdownEmail) el.dropdownEmail.textContent = email;
+      if (el.dropdownLogin) el.dropdownLogin.textContent = login;
+      if (el.dropdownStatus) el.dropdownStatus.textContent = status;
+
+      paintAvatar(el.topbarAvatar, admin.photo, `${name} rasmi`);
+      paintAvatar(el.dropdownAvatar, admin.photo, `${name} rasmi`);
+      paintAvatar(el.adminAvatar, admin.photo, `${name} rasmi`);
+    }
+
+    function renderDrivers() {
+      const today = todayIso();
+      if (!state.drivers.length) {
+        tableEmpty(el.driversBody, 6, "Hozircha haydovchi qo'shilmagan.");
+        renderPager("driversTable", "drivers", 0);
+      } else {
+        const rows = state.drivers.map((d) => {
+          const todayAmount = sumBy(
+            state.movements.filter((m) => m.type === "driver_out" && m.driverId === d.id && m.date === today),
+            (m) => Number(m.amount || 0)
+          );
+          const totalOut = sumBy(
+            state.movements.filter((m) => m.type === "driver_out" && m.driverId === d.id).filter(movementInGlobalFilter),
+            (m) => Number(m.amount || 0)
+          );
+          return { d, todayAmount, totalOut };
+        });
+        const { pageRows } = slicePage(rows, "drivers");
+        el.driversBody.innerHTML = "";
+        pageRows.forEach((r) => {
+          const tr = document.createElement("tr");
+
+          const nameCell = document.createElement("td");
+          const nameWrap = document.createElement("div");
+          nameWrap.className = "driver-name-cell";
+          const avatar = document.createElement("div");
+          avatar.className = "avatar";
+          paintAvatar(avatar, r.d.photo, `${r.d.name} rasmi`);
+          const profileBtn = document.createElement("button");
+          profileBtn.className = "link-btn";
+          profileBtn.dataset.driverId = r.d.id;
+          profileBtn.type = "button";
+          profileBtn.textContent = r.d.name;
+          nameWrap.appendChild(avatar);
+          nameWrap.appendChild(profileBtn);
+          nameCell.appendChild(nameWrap);
+          tr.appendChild(nameCell);
+
+          const phoneCell = document.createElement("td");
+          phoneCell.textContent = r.d.phone || "-";
+          tr.appendChild(phoneCell);
+
+          const vehicleCell = document.createElement("td");
+          vehicleCell.textContent = r.d.vehicle || "-";
+          tr.appendChild(vehicleCell);
+
+          const todayCell = document.createElement("td");
+          todayCell.textContent = fmtMoney(r.todayAmount);
+          tr.appendChild(todayCell);
+
+          const totalCell = document.createElement("td");
+          totalCell.textContent = fmtMoney(r.totalOut);
+          tr.appendChild(totalCell);
+
+          const actionCell = document.createElement("td");
+          const deleteBtn = document.createElement("button");
+          deleteBtn.className = "btn btn-danger driver-delete-btn";
+          deleteBtn.dataset.driverDeleteId = r.d.id;
+          deleteBtn.type = "button";
+          deleteBtn.textContent = "O'chirish";
+          actionCell.appendChild(deleteBtn);
+          tr.appendChild(actionCell);
+
+          el.driversBody.appendChild(tr);
+        });
+        renderPager("driversTable", "drivers", rows.length);
+      }
+      renderDriverProfile();
+    }
+
+    function renderDriverProfile() {
+      if (!state.drivers.length) {
+        el.driverProfile.innerHTML = "<div class='profile-row'><small>Holat</small><strong>Haydovchi yo'q</strong></div>";
+        return;
+      }
+      const selected = getDriver(state.selectedDriverId) || state.drivers[0];
+      state.selectedDriverId = selected.id;
+      const outRows = state.movements.filter((m) => m.type === "driver_out" && m.driverId === selected.id);
+      const retRows = state.movements.filter((m) => m.type === "driver_return" && m.driverId === selected.id);
+      const lastOut = [...outRows].sort((a, b) => (a.date < b.date ? 1 : -1))[0];
+      const lastReturn = [...retRows].sort((a, b) => (a.date < b.date ? 1 : -1))[0];
+      const totalOut = sumBy(outRows.filter(movementInGlobalFilter), (m) => Number(m.amount || 0));
+      const totalRet = sumBy(retRows.filter(movementInGlobalFilter), (m) => Number(m.amount || 0));
+      el.driverProfile.innerHTML = `
+        <div class="admin-head">
+          <div class="avatar">${selected.photo ? `<img src="${escapeHtml(selected.photo)}" alt="${escapeHtml(selected.name)} rasmi">` : avatarPlaceholderSvg}</div>
+          <div>
+            <strong>${escapeHtml(selected.name)}</strong>
+            <div class="inline-text" style="margin:4px 0 0;">${escapeHtml(selected.vehicle || "Transport kiritilmagan")}</div>
+          </div>
+        </div>
+        <div class="profile-row"><small>Haydovchi</small><strong>${escapeHtml(selected.name)}</strong></div>
+        <div class="profile-row"><small>Telefon</small><strong>${escapeHtml(selected.phone || "-")}</strong></div>
+        <div class="profile-row"><small>Transport</small><strong>${escapeHtml(selected.vehicle || "-")}</strong></div>
+        <div class="profile-row"><small>Oxirgi marta tovar olgan</small><strong>${lastOut ? lastOut.date : "-"}</strong></div>
+        <div class="profile-row"><small>Oxirgi marta vozvrat qilgan</small><strong>${lastReturn ? lastReturn.date : "-"}</strong></div>
+        <div class="profile-row"><small>Jami olgan summa</small><strong>${fmtMoney(totalOut)}</strong></div>
+        <div class="profile-row"><small>Jami vozvrat summa</small><strong>${fmtMoney(totalRet)}</strong></div>
+      `;
+    }
+
+    function renderDriverOut() {
+      const rows = state.movements
+        .filter((m) => m.type === "driver_out")
+        .filter(movementInGlobalFilter)
+        .sort((a, b) => (a.date < b.date ? 1 : -1));
+      if (!rows.length) {
+        tableEmpty(el.driverOutBody, 6, "Haydovchilar olgan tovarlar yo'q.");
+        renderPager("driverOutTable", "driverOut", 0);
+      } else {
+        const { pageRows } = slicePage(rows, "driverOut");
+        el.driverOutBody.innerHTML = "";
+        pageRows.forEach((m) => {
+          const p = getProduct(m.productId);
+          const d = getDriver(m.driverId);
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${safeDate(m.date)}</td>
+            <td>${d ? d.name : "-"}</td>
+            <td>${p ? p.name : "-"}</td>
+            <td>${movementQtyText(m)}</td>
+            <td>${fmtMoney(m.amount)}</td>
+            <td>${movementDeleteButton(m.id)}</td>
+          `;
+          el.driverOutBody.appendChild(tr);
+        });
+        renderPager("driverOutTable", "driverOut", rows.length);
+      }
+      renderEntryTable("driverOut", el.driverOutEntryBody, "driverOutEntryTable");
+    }
+
+    function renderReturns() {
+      const rows = state.movements
+        .filter((m) => m.type === "driver_return")
+        .filter(movementInGlobalFilter)
+        .sort((a, b) => (a.date < b.date ? 1 : -1));
+      if (!rows.length) {
+        tableEmpty(el.returnsBody, 6, "Vozvratlar yo'q.");
+        renderPager("returnsTable", "returns", 0);
+      } else {
+        const { pageRows } = slicePage(rows, "returns");
+        el.returnsBody.innerHTML = "";
+        pageRows.forEach((m) => {
+          const p = getProduct(m.productId);
+          const d = getDriver(m.driverId);
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${safeDate(m.date)}</td>
+            <td>${d ? d.name : "-"}</td>
+            <td>${p ? p.name : "-"}</td>
+            <td>${movementQtyText(m)}</td>
+            <td>${fmtMoney(m.amount)}</td>
+            <td>${movementDeleteButton(m.id)}</td>
+          `;
+          el.returnsBody.appendChild(tr);
+        });
+        renderPager("returnsTable", "returns", rows.length);
+      }
+      renderEntryTable("return", el.returnEntryBody, "returnEntryTable");
+    }
+
+    function renderOtherOut() {
+      const rows = state.movements
+        .filter((m) => m.type === "other_out")
+        .filter(movementInGlobalFilter)
+        .sort((a, b) => (a.date < b.date ? 1 : -1));
+      if (!rows.length) {
+        tableEmpty(el.otherOutBody, 6, "Boshqa chiqimlar yo'q.");
+        renderPager("otherOutTable", "otherOut", 0);
+      } else {
+        const { pageRows } = slicePage(rows, "otherOut");
+        el.otherOutBody.innerHTML = "";
+        pageRows.forEach((m) => {
+          const p = getProduct(m.productId);
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${safeDate(m.date)}</td>
+            <td>${m.note || "-"}</td>
+            <td>${p ? p.name : "-"}</td>
+            <td>${movementQtyText(m)}</td>
+            <td>${fmtMoney(m.amount)}</td>
+            <td>${movementDeleteButton(m.id)}</td>
+          `;
+          el.otherOutBody.appendChild(tr);
+        });
+        renderPager("otherOutTable", "otherOut", rows.length);
+      }
+      renderEntryTable("otherOut", el.otherOutEntryBody, "otherOutEntryTable");
+    }
+
+    function renderDashboard() {
+      const filtered = state.movements.filter(movementInGlobalFilter);
+      const map = {};
+      state.products.forEach((p) => {
+        map[p.id] = { in: 0, out: 0, ret: 0 };
+      });
+      filtered.forEach((m) => {
+        if (!map[m.productId]) return;
+        if (m.type === "incoming" || m.type === "adjust_in") map[m.productId].in += m.pieces;
+        if (m.type === "driver_out" || m.type === "other_out" || m.type === "adjust_out") map[m.productId].out += m.pieces;
+        if (m.type === "driver_return") map[m.productId].ret += m.pieces;
+      });
+
+      const rows = state.products.map((p) => ({ p, inPieces: map[p.id].in, outPieces: map[p.id].out, retPieces: map[p.id].ret }));
+      const topIn = [...rows].sort((a, b) => b.inPieces - a.inPieces)[0];
+      const topOut = [...rows].sort((a, b) => b.outPieces - a.outPieces)[0];
+
+      document.getElementById("kpiTopInName").textContent = topIn && topIn.inPieces > 0 ? topIn.p.name : "-";
+      document.getElementById("kpiTopInQty").textContent = topIn && topIn.inPieces > 0 ? qtyToText(topIn.p, topIn.inPieces) : "0 qop 0 dona";
+      document.getElementById("kpiTopOutName").textContent = topOut && topOut.outPieces > 0 ? topOut.p.name : "-";
+      document.getElementById("kpiTopOutQty").textContent = topOut && topOut.outPieces > 0 ? qtyToText(topOut.p, topOut.outPieces) : "0 qop 0 dona";
+
+      const today = todayIso();
+      const todayOut = sumBy(
+        state.movements.filter((m) => (m.type === "driver_out" || m.type === "other_out") && m.date === today).filter(movementInGlobalFilter),
+        (m) => Number(m.amount || 0)
+      );
+      document.getElementById("kpiTodayOutAmount").textContent = fmtMoney(todayOut);
+
+      const sMap = stockMap();
+      let stockSum = 0;
+      state.products.forEach((p) => {
+        const pieces = sMap[p.id] || 0;
+        stockSum += Math.floor(pieces / p.piecesPerBag) * p.priceBag + (pieces % p.piecesPerBag) * p.pricePiece;
+      });
+      document.getElementById("kpiStockAmount").textContent = fmtMoney(stockSum);
+      el.dashRangeText.textContent = filterLabel().replace("Filtr:", "Oraliq:");
+
+      if (!state.products.length) {
+        tableEmpty(el.dashboardProductsBody, 4, "Mahsulot qo'shilgach dashboard ko'rinadi.");
+        renderPager("dashboardProductsTable", "dashProducts", 0);
+      } else {
+        const { pageRows } = slicePage(rows, "dashProducts");
+        el.dashboardProductsBody.innerHTML = "";
+        pageRows.forEach((r) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${r.p.name}</td>
+            <td>${qtyToText(r.p, r.inPieces)}</td>
+            <td>${qtyToText(r.p, r.outPieces)}</td>
+            <td>${qtyToText(r.p, r.retPieces)}</td>
+          `;
+          el.dashboardProductsBody.appendChild(tr);
+        });
+        renderPager("dashboardProductsTable", "dashProducts", rows.length);
+      }
+
+      if (!state.drivers.length) {
+        tableEmpty(el.dashboardDriversBody, 4, "Haydovchi qo'shilgach jadval to'ladi.");
+        renderPager("dashboardDriversTable", "dashDrivers", 0);
+      } else {
+        const dRows = state.drivers.map((d) => {
+          const outRows = state.movements.filter((m) => m.type === "driver_out" && m.driverId === d.id).filter(movementInGlobalFilter);
+          const todayAmount = sumBy(outRows.filter((m) => m.date === today), (m) => Number(m.amount || 0));
+          const total = sumBy(outRows, (m) => Number(m.amount || 0));
+          const last = [...outRows].sort((a, b) => (a.date < b.date ? 1 : -1))[0];
+          return { d, todayAmount, total, lastDate: last ? last.date : "-" };
+        });
+        const { pageRows } = slicePage(dRows, "dashDrivers");
+        el.dashboardDriversBody.innerHTML = "";
+        pageRows.forEach((r) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${r.d.name}</td>
+            <td>${fmtMoney(r.todayAmount)}</td>
+            <td>${fmtMoney(r.total)}</td>
+            <td>${r.lastDate}</td>
+          `;
+          el.dashboardDriversBody.appendChild(tr);
+        });
+        renderPager("dashboardDriversTable", "dashDrivers", dRows.length);
+      }
+    }
+
+    function renderDailyFlow() {
+      const rows = state.movements
+        .filter((m) => m.type === "driver_out" || m.type === "other_out" || m.type === "driver_return")
+        .filter(movementInGlobalFilter)
+        .filter((m) => {
+          if (state.flowType === "all") return true;
+          if (state.flowType === "out") return m.type === "driver_out" || m.type === "other_out";
+          return m.type === "driver_return";
+        })
+        .sort((a, b) => (a.date < b.date ? 1 : -1));
+
+      el.flowRangeText.textContent = `${filterLabel().replace("Filtr:", "Oraliq:")} | Filtr turi: ${
+        state.flowType === "all" ? "Barchasi" : state.flowType === "out" ? "Faqat Chiqim" : "Faqat Kirim"
+      }`;
+
+      if (!rows.length) {
+        tableEmpty(el.dailyFlowBody, 8, "Tanlangan oraliqda harakatlar topilmadi.");
+        renderPager("dailyFlowTable", "dailyFlow", 0);
+        return;
+      }
+      const { pageRows } = slicePage(rows, "dailyFlow");
+      el.dailyFlowBody.innerHTML = "";
+      pageRows.forEach((m) => {
+        const p = getProduct(m.productId);
+        const d = getDriver(m.driverId);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${safeDate(m.date)}</td>
+          <td>${movementLabel(m.type)}</td>
+          <td>${d ? d.name : m.type === "other_out" ? m.note || "-" : "-"}</td>
+          <td>${p ? p.name : "-"}</td>
+          <td>${movementQtyText(m)}</td>
+          <td>${fmtMoney(m.amount)}</td>
+          <td>${movementSource(m.type)}</td>
+          <td>${movementDeleteButton(m.id)}</td>
+        `;
+        el.dailyFlowBody.appendChild(tr);
+      });
+      renderPager("dailyFlowTable", "dailyFlow", rows.length);
+    }
+
+    function renderReports() {
+      const filtered = state.movements.filter(movementInGlobalFilter);
+      const map = {};
+      state.products.forEach((p) => {
+        map[p.id] = { in: 0, out: 0, ret: 0 };
+      });
+
+      let incomingAmount = 0;
+      let outAmount = 0;
+      let retAmount = 0;
+
+      filtered.forEach((m) => {
+        if (m.type === "incoming" || m.type === "adjust_in") {
+          incomingAmount += Number(m.amount || 0);
+          if (map[m.productId]) map[m.productId].in += m.pieces;
+        }
+        if (m.type === "driver_out" || m.type === "other_out" || m.type === "adjust_out") {
+          outAmount += Number(m.amount || 0);
+          if (map[m.productId]) map[m.productId].out += m.pieces;
+        }
+        if (m.type === "driver_return") {
+          retAmount += Number(m.amount || 0);
+          if (map[m.productId]) map[m.productId].ret += m.pieces;
+        }
+      });
+
+      const totalIn = Object.values(map).reduce((a, v) => a + v.in, 0);
+      const totalOut = Object.values(map).reduce((a, v) => a + v.out, 0);
+      const totalRet = Object.values(map).reduce((a, v) => a + v.ret, 0);
+
+      document.getElementById("reportIncomingQty").textContent = `${totalIn.toLocaleString("uz-UZ")} dona`;
+      document.getElementById("reportIncomingAmount").textContent = fmtMoney(incomingAmount);
+      document.getElementById("reportOutQty").textContent = `${totalOut.toLocaleString("uz-UZ")} dona`;
+      document.getElementById("reportOutAmount").textContent = fmtMoney(outAmount);
+      document.getElementById("reportReturnQty").textContent = `${totalRet.toLocaleString("uz-UZ")} dona`;
+      document.getElementById("reportReturnAmount").textContent = fmtMoney(retAmount);
+      document.getElementById("reportNetAmount").textContent = fmtMoney(outAmount - retAmount);
+      el.reportRangeText.textContent = filterLabel().replace("Filtr:", "Hisobot davri:");
+
+      const sMap = stockMap();
+      if (!state.products.length) {
+        tableEmpty(el.reportsBody, 5, "Hisobot uchun mahsulot qo'shing.");
+        renderPager("reportsTable", "reports", 0);
+        return;
+      }
+      const rows = state.products.map((p) => ({
+        name: p.name,
+        inVal: qtyToText(p, map[p.id].in),
+        outVal: qtyToText(p, map[p.id].out),
+        retVal: qtyToText(p, map[p.id].ret),
+        stockVal: qtyToText(p, sMap[p.id] || 0)
+      }));
+      const { pageRows } = slicePage(rows, "reports");
+      el.reportsBody.innerHTML = "";
+      pageRows.forEach((r) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${r.name}</td>
+          <td>${r.inVal}</td>
+          <td>${r.outVal}</td>
+          <td>${r.retVal}</td>
+          <td>${r.stockVal}</td>
+        `;
+        el.reportsBody.appendChild(tr);
+      });
+      renderPager("reportsTable", "reports", rows.length);
+    }
+
+    function requireProducts(noticeNode) {
+      if (!state.products.length) {
+        showNotice(noticeNode, "Avval mahsulot qo'shing.", "bad");
+        return false;
+      }
+      return true;
+    }
+
+    function requireDrivers(noticeNode) {
+      if (!state.drivers.length) {
+        showNotice(noticeNode, "Avval haydovchi qo'shing.", "bad");
+        return false;
+      }
+      return true;
+    }
+
+    function renderAll() {
+      renderAdminPanel();
+      renderSelectors();
+      el.globalFilterText.textContent = filterLabel();
+      renderProducts();
+      renderInitialStock();
+      renderIncoming();
+      renderStock();
+      renderDrivers();
+      renderDriverOut();
+      renderReturns();
+      renderOtherOut();
+      renderDashboard();
+      renderDailyFlow();
+      renderReports();
+    }
+
+    function exportTableToExcel(tableId, filename) {
+      const table = document.getElementById(tableId);
+      if (!table) return;
+      const html = `
+        <html>
+          <head><meta charset="UTF-8"></head>
+          <body>${table.outerHTML}</body>
+        </html>
+      `;
+      const blob = new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${filename}.xls`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function initDates() {
+      const t = todayIso();
+      document.getElementById("incomingDate").value = t;
+      document.getElementById("stockEditDate").value = t;
+      document.getElementById("driverOutDate").value = t;
+      document.getElementById("otherOutDate").value = t;
+      document.getElementById("returnDate").value = t;
+    }
+
+    function initTopDate() {
+      const now = new Date();
+      const dateText = now.toLocaleDateString("uz-UZ", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+      el.todayLabel.textContent = `Bugungi sana: ${dateText}`;
+    }
+
+    function bindEvents() {
+      el.loginForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const user = document.getElementById("loginUsername").value.trim();
+        const pass = document.getElementById("loginPassword").value.trim();
+        if (user === state.admin.login && pass === state.admin.password) {
+          state.user = { name: state.admin.name || state.admin.login };
+          el.loginError.textContent = "";
+          el.loginScreen.classList.add("hidden");
+          el.app.classList.remove("hidden");
+          renderAdminPanel();
+        } else {
+          el.loginError.textContent = "Login yoki parol noto'g'ri.";
+        }
+      });
+
+      document.getElementById("logoutBtn").addEventListener("click", () => {
+        state.user = null;
+        el.app.classList.add("hidden");
+        el.loginScreen.classList.remove("hidden");
+        el.loginForm.reset();
+        el.profileDropdown.classList.add("hidden");
+      });
+
+      el.profileChip.addEventListener("click", (e) => {
+        e.stopPropagation();
+        el.profileDropdown.classList.toggle("hidden");
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!el.profileDropdown.classList.contains("hidden") && !el.profileDropdown.contains(e.target) && !el.profileChip.contains(e.target)) {
+          el.profileDropdown.classList.add("hidden");
+        }
+      });
+
+      el.menuList.addEventListener("click", (e) => {
+        const btn = e.target.closest(".menu-item");
+        if (!btn) return;
+        const target = btn.dataset.target;
+        el.sections.forEach((s) => s.classList.toggle("active", s.id === target));
+        document.querySelectorAll(".menu-item").forEach((m) => m.classList.toggle("active", m.dataset.target === target));
+      });
+
+      [
+        { node: el.adminName, key: "name" },
+        { node: el.adminRoleInput, key: "role" },
+        { node: el.adminEmail, key: "email" },
+        { node: el.adminStatus, key: "status" },
+        { node: el.adminLogin, key: "login" },
+        { node: el.adminPassword, key: "password" }
+      ].forEach(({ node, key }) => {
+        node.addEventListener("input", () => {
+          state.admin[key] = node.value.trim();
+          renderAdminPanel();
+          requestStateSave();
+        });
+      });
+
+      el.adminPhoto.addEventListener("change", async () => {
+        const file = el.adminPhoto.files && el.adminPhoto.files[0];
+        if (!file) return;
+        state.admin.photo = await fileToDataUrl(file);
+        renderAdminPanel();
+        requestStateSave();
+      });
+
+      el.toggleFilterPanel.addEventListener("click", () => {
+        el.globalFilterPanel.classList.toggle("hidden");
+      });
+
+      document.querySelectorAll(".filter-preset-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          applyFilterPreset(btn.dataset.filterPreset);
+        });
+      });
+
+      el.applyGlobalFilter.addEventListener("click", () => {
+        const from = el.globalFrom.value;
+        const to = el.globalTo.value;
+        if (!from || !to || from > to) {
+          alert("Filtr sanalarini to'g'ri kiriting.");
+          return;
+        }
+        state.globalFilter = { active: true, from, to };
+        el.globalFilterPanel.classList.add("hidden");
+        renderAll();
+      });
+
+      el.cancelGlobalFilter.addEventListener("click", () => {
+        el.globalFilterPanel.classList.add("hidden");
+      });
+
+      el.clearGlobalFilter.addEventListener("click", () => {
+        state.globalFilter = { active: false, from: "", to: "" };
+        el.globalFrom.value = "";
+        el.globalTo.value = "";
+        document.querySelectorAll(".filter-preset-btn").forEach((b) => b.classList.remove("active"));
+        document.querySelector('.filter-preset-btn[data-filter-preset="today"]')?.classList.add("active");
+        renderAll();
+      });
+
+      document.querySelectorAll("[data-flow-type]").forEach((chip) => {
+        chip.addEventListener("click", () => {
+          state.flowType = chip.dataset.flowType;
+          document.querySelectorAll("[data-flow-type]").forEach((c) => c.classList.toggle("active", c === chip));
+          renderDailyFlow();
+        });
+      });
+
+      document.querySelectorAll(".export-btn").forEach((btn) => {
+        btn.addEventListener("click", () => exportTableToExcel(btn.dataset.table, btn.dataset.file));
+      });
+
+      document.addEventListener("click", (e) => {
+        const pager = e.target.closest("[data-pager-key]");
+        if (pager) {
+          const key = pager.dataset.pagerKey;
+          const move = Number(pager.dataset.pagerMove || 0);
+          state.pagination[key] = (state.pagination[key] || 1) + move;
+          renderAll();
+          return;
+        }
+        const movementDeleteBtn = e.target.closest(".movement-delete-btn");
+        if (movementDeleteBtn) {
+          const movementId = movementDeleteBtn.dataset.movementDeleteId;
+          const movement = state.movements.find((m) => m.id === movementId);
+          if (!movement) return;
+          if (!confirm("Ushbu yozuv o'chirilsinmi? Sklad qoldig'i avtomatik qayta hisoblanadi.")) return;
+          state.movements = state.movements.filter((m) => m.id !== movementId);
+          requestStateSave();
+          renderAll();
+          return;
+        }
+        const driverDeleteBtn = e.target.closest(".driver-delete-btn");
+        if (driverDeleteBtn) {
+          const driverId = driverDeleteBtn.dataset.driverDeleteId;
+          const driver = getDriver(driverId);
+          if (!driver) return;
+          if (!confirm(`${driver.name} haydovchisi o'chirilsinmi? Unga tegishli chiqim va vozvratlar ham o'chadi.`)) return;
+          state.drivers = state.drivers.filter((d) => d.id !== driverId);
+          state.movements = state.movements.filter((m) => m.driverId !== driverId);
+          state.selectedDriverId = state.drivers[0]?.id || null;
+          requestStateSave();
+          renderAll();
+          return;
+        }
+        const saveBtn = e.target.closest(".product-save-btn");
+        if (saveBtn) {
+          const productId = saveBtn.dataset.productSaveId;
+          const row = saveBtn.closest("tr");
+          const product = getProduct(productId);
+          if (!row || !product) return;
+          const name = row.querySelector('[data-field="name"]')?.value?.trim() || "";
+          const piecesPerBag = Number(row.querySelector('[data-field="piecesPerBag"]')?.value);
+          const priceBag = Number(row.querySelector('[data-field="priceBag"]')?.value);
+          const pricePiece = Number(row.querySelector('[data-field="pricePiece"]')?.value);
+          if (!name || !isValidNumber(piecesPerBag) || piecesPerBag <= 0 || !isValidNumber(priceBag) || priceBag < 0 || !isValidNumber(pricePiece) || pricePiece < 0) {
+            showNotice(el.productNotice, "Tahrirlash maydonlarini to'g'ri kiriting.", "bad");
+            return;
+          }
+          product.name = name;
+          product.piecesPerBag = Math.max(1, Math.round(piecesPerBag));
+          product.priceBag = Math.max(0, Number(priceBag));
+          product.pricePiece = Math.max(0, Number(pricePiece));
+          showNotice(el.productNotice, "Mahsulot tahrirlandi.", "ok");
+          requestStateSave();
+          renderAll();
+          return;
+        }
+        const stockPriceSaveBtn = e.target.closest(".stock-price-save-btn");
+        if (stockPriceSaveBtn) {
+          const productId = stockPriceSaveBtn.dataset.stockPriceSaveId;
+          const row = stockPriceSaveBtn.closest("tr");
+          const product = getProduct(productId);
+          if (!row || !product) return;
+          const priceBag = Number(row.querySelector('[data-field="priceBag"]')?.value);
+          const pricePiece = Number(row.querySelector('[data-field="pricePiece"]')?.value);
+          if (!isValidNumber(priceBag) || priceBag < 0 || !isValidNumber(pricePiece) || pricePiece < 0) {
+            showNotice(el.stockEditNotice, "Narxlarni to'g'ri kiriting.", "bad");
+            return;
+          }
+          product.priceBag = Math.max(0, Number(priceBag));
+          product.pricePiece = Math.max(0, Number(pricePiece));
+          showNotice(el.stockEditNotice, "Sklad narxlari tahrirlandi.", "ok");
+          requestStateSave();
+          renderAll();
+          return;
+        }
+        const clearBtn = e.target.closest(".clear-entry-btn");
+        if (clearBtn) {
+          clearEntryDraft(clearBtn.dataset.entryType);
+          renderAll();
+          return;
+        }
+      });
+
+      document.addEventListener("input", (e) => {
+        const field = e.target.closest(".entry-input");
+        if (!field) return;
+        const type = field.dataset.entryType;
+        const productId = field.dataset.productId;
+        const key = field.dataset.field;
+        const draft = ensureEntryDraft(type, productId);
+        draft[key] = field.value;
+        if (key !== "amount") {
+          const bagQty = Math.max(0, toInt(draft.bag) || 0);
+          const pieceQty = Math.max(0, toInt(draft.piece) || 0);
+          const bagPrice = Math.max(0, Number(draft.bagPrice) || 0);
+          const piecePrice = Math.max(0, Number(draft.piecePrice) || 0);
+          const total = calcAmountByPrices(bagQty, pieceQty, bagPrice, piecePrice);
+          draft.amount = total > 0 ? String(total) : "";
+          const row = field.closest("tr");
+          const amountInput = row ? row.querySelector('[data-field="amount"]') : null;
+          if (amountInput && amountInput !== field) amountInput.value = draft.amount;
+        }
+        updateEntryTotal(type);
+      });
+
+      el.initialStockForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        if (!state.products.length) {
+          showNotice(el.initialStockNotice, "Avval mahsulot qo'shing.", "bad");
+          return;
+        }
+        const inputs = el.initialStockForm.querySelectorAll("[data-initial-stock-id]");
+        for (const input of inputs) {
+          const productId = input.dataset.initialStockId;
+          const raw = String(input.value || "").trim();
+          const parsed = raw === "" ? 0 : Number(raw);
+          if (!Number.isFinite(parsed) || parsed < 0 || !Number.isInteger(parsed)) {
+            showNotice(el.initialStockNotice, "Boshlang'ich son maydoniga faqat 0 yoki undan katta butun son kiriting.", "bad");
+            return;
+          }
+          state.initialStock[productId] = parsed;
+        }
+        showNotice(el.initialStockNotice, "Boshlang'ich ostatka saqlandi.", "ok");
+        requestStateSave();
+        renderAll();
+      });
+
+      el.productForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const name = document.getElementById("productName").value.trim();
+        const piecesPerBag = toInt(document.getElementById("piecesPerBag").value);
+        const priceBag = Number(document.getElementById("priceBag").value);
+        const pricePiece = Number(document.getElementById("pricePiece").value);
+        if (!name || !isValidNumber(piecesPerBag) || piecesPerBag <= 0 || !isValidNumber(priceBag) || priceBag < 0 || !isValidNumber(pricePiece) || pricePiece < 0) {
+          showNotice(el.productNotice, "Maydonlarni to'g'ri to'ldiring.", "bad");
+          return;
+        }
+        addProduct(name, piecesPerBag, priceBag, pricePiece);
+        e.target.reset();
+        showNotice(el.productNotice, "Mahsulot qo'shildi.", "ok");
+        renderAll();
+      });
+
+      el.deleteProductForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const id = el.deleteProductSelect.value;
+        if (!id) {
+          showNotice(el.deleteProductNotice, "O'chirish uchun mahsulot yo'q.", "bad");
+          return;
+        }
+        state.products = state.products.filter((p) => p.id !== id);
+        state.movements = state.movements.filter((m) => m.productId !== id);
+        delete state.entryDrafts.incoming[id];
+        delete state.entryDrafts.stockEdit[id];
+        delete state.entryDrafts.driverOut[id];
+        delete state.entryDrafts.otherOut[id];
+        delete state.entryDrafts.return[id];
+        delete state.initialStock[id];
+        showNotice(el.deleteProductNotice, "Mahsulot o'chirildi.", "ok");
+        requestStateSave();
+        renderAll();
+      });
+
+      el.incomingForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        if (!requireProducts(el.incomingNotice)) return;
+        const ok = applyEntryRows({
+          type: "incoming",
+          date: document.getElementById("incomingDate").value,
+          noticeNode: el.incomingNotice,
+          note: el.incomingComment.value.trim()
+        });
+        if (!ok) return;
+        showNotice(el.incomingNotice, "Skladga kirimlar saqlandi.", "ok");
+        el.incomingComment.value = "";
+        renderAll();
+      });
+
+      el.stockEditForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        if (!requireProducts(el.stockEditNotice)) return;
+        const operation = el.stockEditOperation.value;
+        const ok = applyStockEditRows({
+          date: document.getElementById("stockEditDate").value,
+          operation,
+          noticeNode: el.stockEditNotice,
+          note: el.stockEditNote.value.trim()
+        });
+        if (!ok) return;
+        showNotice(el.stockEditNotice, "Sklad tahriri ro'yxat bo'yicha saqlandi.", "ok");
+        el.stockEditNote.value = "";
+        renderAll();
+      });
+
+      el.driverForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const name = document.getElementById("driverName").value.trim();
+        const phone = document.getElementById("driverPhone").value.trim();
+        const vehicle = document.getElementById("driverVehicle").value.trim();
+        const photoFile = el.driverPhoto.files && el.driverPhoto.files[0];
+        if (!name) {
+          showNotice(el.driverNotice, "Haydovchi nomini kiriting.", "bad");
+          return;
+        }
+        const photo = photoFile ? await fileToDataUrl(photoFile) : "";
+        addDriver(name, phone, vehicle, photo);
+        e.target.reset();
+        showNotice(el.driverNotice, "Haydovchi qo'shildi.", "ok");
+        renderAll();
+      });
+
+      el.driversBody.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-driver-id]");
+        if (!btn) return;
+        state.selectedDriverId = btn.dataset.driverId;
+        renderDriverProfile();
+      });
+
+      el.driverOutForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        if (!requireProducts(el.driverOutNotice) || !requireDrivers(el.driverOutNotice)) return;
+        const driverId = el.driverOutDriver.value;
+        if (!driverId) {
+          showNotice(el.driverOutNotice, "Haydovchini tanlang.", "bad");
+          return;
+        }
+        const ok = applyEntryRows({
+          type: "driverOut",
+          date: document.getElementById("driverOutDate").value,
+          driverId,
+          noticeNode: el.driverOutNotice,
+          note: el.driverOutComment.value.trim()
+        });
+        if (!ok) return;
+        showNotice(el.driverOutNotice, "Haydovchi chiqimi saqlandi.", "ok");
+        el.driverOutComment.value = "";
+        renderAll();
+      });
+
+      el.otherOutForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        if (!requireProducts(el.otherOutNotice)) return;
+        const ok = applyEntryRows({
+          type: "otherOut",
+          date: document.getElementById("otherOutDate").value,
+          noticeNode: el.otherOutNotice,
+          note: el.otherOutReason.value
+        });
+        if (!ok) return;
+        showNotice(el.otherOutNotice, "Boshqa chiqim sklad ostatkasidan ayirildi.", "ok");
+        renderAll();
+      });
+
+      el.returnForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        if (!requireProducts(el.returnNotice) || !requireDrivers(el.returnNotice)) return;
+        const driverId = el.returnDriver.value;
+        if (!driverId) {
+          showNotice(el.returnNotice, "Haydovchini tanlang.", "bad");
+          return;
+        }
+        const ok = applyEntryRows({
+          type: "return",
+          date: document.getElementById("returnDate").value,
+          driverId,
+          noticeNode: el.returnNotice,
+          note: el.returnComment.value.trim()
+        });
+        if (!ok) return;
+        showNotice(el.returnNotice, "Vozvratlar saqlandi.", "ok");
+        el.returnComment.value = "";
+        renderAll();
+      });
+    }
+
+    async function bootstrap() {
+      initTopDate();
+      initDates();
+      applyFilterPreset("today");
+      bindEvents();
+      await loadRemoteState();
+      renderAll();
+    }
+
+    bootstrap();
+  </script>
+</body>
+</html>
+
